@@ -1,0 +1,14 @@
+pii-detector/
+│
+├── index.html
+├── js/
+│   ├── pii-patterns.js
+│   ├── file-readers.js
+│   ├── detector.js
+│   └── app.js
+│
+├── css/
+│   └── style.css
+│
+├── CHANGELOG.md
+└── VERSION
