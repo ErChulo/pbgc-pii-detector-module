@@ -140,7 +140,7 @@ description: "Task list for PBGC PII Detection Workflow implementation"
 
 - [x] T042 Run JavaScript syntax checks for `pii-detection.v0.4.0/src/main.js` and `pii-detection.v0.4.0/vite.config.js`
 - [x] T043 Run no-server-call source scan against `pii-detection.v0.4.0/`
-- [ ] T044 Validate `pii-detection.v0.4.0/index.html` manually with synthetic PII samples following `specs/001-pbgc-pii-workflow/quickstart.md`
+- [x] T044 Validate `pii-detection.v0.4.0/index.html` manually with synthetic PII samples following `specs/001-pbgc-pii-workflow/quickstart.md`
 - [x] T045 Verify PBGC IM 05-09 and IM 10-03 policy mapping in `pii-detection.v0.4.0/src/main.js`
 - [x] T046 Verify export manifest, version metadata, and encrypted archive behavior against `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json`
 - [x] T047 Update release notes for completed behavior in `pii-detection.v0.4.0/CHANGELOG.md`
