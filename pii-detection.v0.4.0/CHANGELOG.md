@@ -12,3 +12,4 @@
 - Added explicit confirmation for redact and erase decisions before export remediation is applied.
 - Added browser-limitation records for unsupported, unreadable, DB, and SQLite inputs.
 - Aligned structured JSON output with the export manifest contract.
+- Added persistent dark/light theme toggle with higher-contrast theme color tokens.

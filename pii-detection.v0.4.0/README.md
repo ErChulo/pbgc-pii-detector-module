@@ -10,6 +10,7 @@ with IM 05-09 and IM 10-03.
 - No server calls, telemetry, uploads, or remote storage are used by app code.
 - CDN libraries are referenced from `index.html` for document parsing and export.
 - `npm run dev` is available only for Vite development convenience.
+- The header theme button switches between high-contrast light and dark themes.
 
 ## Export Notes
 

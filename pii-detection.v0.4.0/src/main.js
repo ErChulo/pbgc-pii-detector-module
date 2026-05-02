@@ -104,6 +104,7 @@ const state = {
 const $ = (id) => document.getElementById(id);
 
 const els = {
+  themeToggle: $("themeToggle"),
   dropZone: $("dropZone"),
   fileInput: $("fileInput"),
   dirInput: $("dirInput"),
@@ -124,6 +125,8 @@ const els = {
   chooseOutputBtn: $("chooseOutputBtn"),
   passwordInput: $("passwordInput")
 };
+
+initTheme();
 
 if (window.pdfjsLib) {
   window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -146,6 +149,26 @@ function queueFiles(fileList) {
 
 function updateStatus(message) {
   els.statusText.textContent = message;
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("pbgc-pii-theme");
+  const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const initialTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
+  setTheme(initialTheme);
+  els.themeToggle.addEventListener("click", () => {
+    const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    localStorage.setItem("pbgc-pii-theme", nextTheme);
+  });
+}
+
+function setTheme(theme) {
+  const normalized = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = normalized;
+  els.themeToggle.textContent = normalized === "dark" ? "☀" : "☾";
+  els.themeToggle.setAttribute("aria-label", normalized === "dark" ? "Switch to light theme" : "Switch to dark theme");
+  els.themeToggle.title = normalized === "dark" ? "Switch to light theme" : "Switch to dark theme";
 }
 
 async function readFile(file) {
