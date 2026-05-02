@@ -350,7 +350,7 @@ function initTheme() {
 function setTheme(theme) {
   const normalized = theme === "dark" ? "dark" : "light";
   document.documentElement.dataset.theme = normalized;
-  els.themeToggle.textContent = normalized === "dark" ? "L" : "D";
+  els.themeToggle.textContent = normalized === "dark" ? "☀" : "☾";
   els.themeToggle.setAttribute("aria-label", normalized === "dark" ? "Switch to light theme" : "Switch to dark theme");
   els.themeToggle.title = normalized === "dark" ? "Switch to light theme" : "Switch to dark theme";
 }
@@ -563,11 +563,20 @@ function maskValue(value) {
 
 function redactText(text, findings) {
   let output = text;
-  const values = [...new Set(findings.filter((finding) => [DISPOSITIONS.redact, DISPOSITIONS.erase].includes(normalizeAction(finding.action))).map((finding) => finding.match))];
-  for (const value of values) {
-    output = output.split(value).join("[REDACTED]");
+  const actionableFindings = findings
+    .filter((finding) => [DISPOSITIONS.redact, DISPOSITIONS.erase].includes(normalizeAction(finding.action)))
+    .filter((finding) => finding.match)
+    .sort((a, b) => b.match.length - a.match.length);
+  for (const finding of actionableFindings) {
+    output = output.split(finding.match).join(redactionToken(finding));
   }
   return output;
+}
+
+function redactionToken(finding) {
+  const type = String(finding.type || "PII").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "").toUpperCase() || "PII";
+  const action = normalizeAction(finding.action) === DISPOSITIONS.erase ? "ERASED" : "REDACTED";
+  return `[${action}_${type}]`;
 }
 
 async function processQueue() {
@@ -722,7 +731,7 @@ function renderFindings() {
 
 function confirmDestructiveAction(finding, action) {
   const verb = action === DISPOSITIONS.erase ? "erase" : "redact";
-  return window.confirm(`Confirm ${verb} for ${finding.type} in ${finding.file}. This decision will affect exported redacted output and will be recorded in the review package.`);
+  return window.confirm(`Confirm ${verb} for ${finding.type} in ${finding.file}. Exported OCR/LLM-ready text will keep surrounding words intact and replace only the sensitive value with a typed placeholder such as [REDACTED_SSN].`);
 }
 
 function actionOption(value, label, current) {
@@ -865,8 +874,8 @@ function manifest() {
       "pii-findings.csv",
       "pii-findings.html",
       "manifest.json",
-      "redacted-text/*.txt",
-      "redacted-pdf/*.pdf where browser PDF generation is available"
+      "redacted-text/*.txt with semantic placeholders that preserve surrounding text for OCR/LLM review",
+      "redacted-pdf/*.pdf with semantic placeholders where browser PDF generation is available"
     ],
     archive: {
       name: state.exportMeta.archiveName,
@@ -885,6 +894,7 @@ function limitationList() {
     "Password-protected zip export is local protection only; IM 10-03 requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC.",
     "The app cannot grant CPO approval for removal of PII from PBGC devices, networks, contractor environments, or the workplace.",
     "Redaction/export actions do not replace PBGC records management, CUI disposal, or breach reporting procedures.",
+    "Redacted outputs preserve non-PII text for OCR/LLM analysis and replace sensitive values with typed placeholders such as [REDACTED_SSN].",
     "Exact native document-to-PDF conversion is limited by browser libraries; extracted text PDFs are generated where supported.",
     "Unresolved findings remain marked as unresolved in exports.",
     VALIDATION_CLAIM,

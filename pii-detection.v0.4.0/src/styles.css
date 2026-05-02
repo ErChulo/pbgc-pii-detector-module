@@ -173,8 +173,26 @@ h2 {
   height: 42px;
   padding: 0;
   border-radius: 999px;
-  font-size: 1.2rem;
+  font-size: 1.28rem;
   line-height: 1;
+}
+
+.theme-toggle {
+  background: var(--field);
+  color: var(--ink);
+  border-color: var(--line);
+  font-weight: 900;
+}
+
+.theme-toggle:hover {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  border-color: var(--accent);
+}
+
+:root[data-theme="dark"] .theme-toggle {
+  background: var(--field);
+  color: var(--ink);
 }
 
 button:focus-visible,

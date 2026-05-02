@@ -28,9 +28,12 @@ least three of uppercase letters, lowercase letters, numbers, and symbols.
 
 DB and SQLite files are recorded as browser-limited unless a browser-safe
 extractor is added. Redact and erase decisions require explicit confirmation
-before the exported redacted outputs apply those decisions. The manifest records
-whether the archive was password-protected, whether export was blocked, detector
-validation evidence, policy references, and any limitations encountered.
+before the exported redacted outputs apply those decisions. Redacted text and PDF
+renditions preserve surrounding non-PII content for OCR and LLM analysis, and
+replace only sensitive values with typed placeholders such as `[REDACTED_SSN]`
+or `[ERASED_BANK_ACCOUNT_CONTEXT]`. The manifest records whether the archive was
+password-protected, whether export was blocked, detector validation evidence,
+policy references, and any limitations encountered.
 
 Password-protected archive export is a transport safeguard. The app does not
 claim FIPS 140-3 validation unless that can be demonstrated for the actual

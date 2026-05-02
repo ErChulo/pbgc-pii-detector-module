@@ -55,3 +55,4 @@ App implications:
 - The app must record that removal/dissemination approval and PBGC transfer method are outside the static app's authority.
 - Export manifests must disclose encryption limitations and not claim FIPS or PBGC approval unless independently validated/approved.
 - Disposal/redaction actions must be documented as review/export actions and must not replace official PBGC records management or CUI disposal procedures.
+- Redacted outputs should preserve non-PII surrounding text for OCR/LLM analysis and replace only sensitive values with typed placeholders.
