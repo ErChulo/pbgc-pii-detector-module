@@ -241,6 +241,7 @@ const els = {
   workflowDialog: $("workflowDialog"),
   progress: $("progress"),
   statusText: $("statusText"),
+  appAlert: $("appAlert"),
   fileCount: $("fileCount"),
   findingCount: $("findingCount"),
   highCount: $("highCount"),
@@ -254,7 +255,8 @@ const els = {
   passwordInput: $("passwordInput"),
   passwordConfirmInput: $("passwordConfirmInput"),
   encryptionStatus: $("encryptionStatus"),
-  validationSummary: $("validationSummary")
+  validationSummary: $("validationSummary"),
+  exportMessage: $("exportMessage")
 };
 
 initTheme();
@@ -292,6 +294,7 @@ function queueFiles(fileList) {
     if (!known.has(key)) state.files.push(file);
   }
   updateStatus(`${state.files.length} supported file(s) queued`);
+  updateAlert(`${state.files.length} supported file(s) queued. Click Process queue to scan them.`, "info");
   renderSummary();
 }
 
@@ -299,9 +302,21 @@ function updateStatus(message) {
   els.statusText.textContent = message;
 }
 
+function updateAlert(message, tone = "info") {
+  els.appAlert.textContent = message;
+  els.appAlert.className = `app-alert ${tone}`;
+}
+
+function updateExportMessage(message, tone = "info") {
+  els.exportMessage.textContent = message;
+  els.exportMessage.className = `export-message ${tone}`;
+}
+
 function showActionError(error) {
   const message = error?.message || String(error);
   updateStatus(`Action failed: ${message}`);
+  updateAlert(`Action failed: ${message}`, "error");
+  updateExportMessage(`Action failed: ${message}`, "error");
   console.error(error);
 }
 
@@ -548,6 +563,7 @@ function redactText(text, findings) {
 async function processQueue() {
   if (!state.files.length) {
     updateStatus("Select files or a directory before processing");
+    updateAlert("No files are queued. Select files, select a directory, or drop files into the intake area first.", "warning");
     return;
   }
 
@@ -585,6 +601,7 @@ async function processQueue() {
 
   migrateActions();
   updateStatus(`Processed ${state.files.length} file(s) with ${state.findings.length} finding(s)`);
+  updateAlert(`Processing complete: ${state.files.length} file(s), ${state.findings.length} finding(s). Review findings, then export with a password if sensitive output exists.`, "success");
   renderAll();
 }
 
@@ -879,6 +896,8 @@ async function exportOutput() {
   try {
     if (!state.findings.length && !state.documents.length) {
       updateStatus("Process files before exporting");
+      updateAlert("Export cannot run yet. Process files first, then review findings.", "warning");
+      updateExportMessage("Export cannot run yet. Process files first, then review findings.", "warning");
       return;
     }
 
@@ -886,9 +905,14 @@ async function exportOutput() {
     renderEncryptionStatus();
     if (validation.blocked) {
       updateStatus(validation.message);
+      updateAlert(validation.message, "error");
+      updateExportMessage(validation.message, "error");
       return;
     }
-    if (!confirmExportRemediation()) return;
+    if (!confirmExportRemediation()) {
+      updateExportMessage("Export cancelled before package creation.", "warning");
+      return;
+    }
 
     const files = await buildOutputFiles();
     const zipBlob = await createZip(files, els.passwordInput.value);
@@ -899,9 +923,13 @@ async function exportOutput() {
       await writeFile(dir, zipName, zipBlob);
       for (const file of files) await writeFile(dir, file.name, file.blob);
       updateStatus(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`));
+      updateAlert(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`), "success");
+      updateExportMessage(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`), "success");
     } else {
       downloadBlob(zipBlob, zipName);
       updateStatus(exportStatusMessage("Export zip downloaded through browser downloads"));
+      updateAlert(exportStatusMessage("Export zip downloaded through browser downloads"), "success");
+      updateExportMessage(exportStatusMessage("Export zip downloaded through browser downloads"), "success");
     }
     renderEncryptionStatus();
   } catch (error) {
@@ -1128,14 +1156,22 @@ function safeFileName(name) {
 async function chooseOutputDirectory() {
   try {
     if (!window.showDirectoryPicker) {
-      updateStatus("Directory picker is not supported in this browser or file mode; export will download a zip instead.");
+      const message = "This browser does not support choosing an output folder from this page. Use Export reviewed output; the zip will download through the browser downloads folder.";
+      updateStatus("Directory picker is not supported; export will download a zip instead.");
+      updateAlert(message, "warning");
+      updateExportMessage(message, "warning");
       return;
     }
     state.outputHandle = await window.showDirectoryPicker({ mode: "readwrite" });
     updateStatus(`Output directory selected; ${OUTPUT_DIR} will be created there`);
+    updateAlert(`Output directory selected. Export will create ${OUTPUT_DIR} there.`, "success");
+    updateExportMessage(`Output directory selected. Export will create ${OUTPUT_DIR} there.`, "success");
   } catch (error) {
     if (error?.name === "AbortError") {
+      const message = "Output directory selection was cancelled. Export will download a zip through the browser downloads folder.";
       updateStatus("Output directory selection was cancelled; export will download a zip instead.");
+      updateAlert(message, "warning");
+      updateExportMessage(message, "warning");
       return;
     }
     showActionError(error);
@@ -1151,6 +1187,8 @@ function clearState() {
   els.passwordInput.value = "";
   els.passwordConfirmInput.value = "";
   updateStatus("No files queued");
+  updateAlert("Ready. Select files or drop them here to begin.", "info");
+  updateExportMessage("Export has not run yet.", "info");
   renderAll();
 }
 

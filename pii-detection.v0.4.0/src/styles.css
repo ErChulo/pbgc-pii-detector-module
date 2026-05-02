@@ -317,6 +317,75 @@ select {
   line-height: 1.35;
 }
 
+.app-alert,
+.export-message {
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.app-alert {
+  margin-top: 14px;
+}
+
+.export-message {
+  min-height: 48px;
+}
+
+.app-alert.info,
+.export-message.info {
+  border-color: #1d4ed8;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.app-alert.success,
+.export-message.success {
+  border-color: #047857;
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.app-alert.warning,
+.export-message.warning {
+  border-color: #92400e;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.app-alert.error,
+.export-message.error {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+:root[data-theme="dark"] .app-alert.info,
+:root[data-theme="dark"] .export-message.info {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+:root[data-theme="dark"] .app-alert.success,
+:root[data-theme="dark"] .export-message.success {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+:root[data-theme="dark"] .app-alert.warning,
+:root[data-theme="dark"] .export-message.warning {
+  background: #78350f;
+  color: #fef3c7;
+}
+
+:root[data-theme="dark"] .app-alert.error,
+:root[data-theme="dark"] .export-message.error {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
 .status-pill {
   border: 1px solid var(--line);
   border-radius: 6px;

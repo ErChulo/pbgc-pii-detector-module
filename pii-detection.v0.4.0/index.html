@@ -46,6 +46,7 @@
             <progress id="progress" value="0" max="100"></progress>
             <span id="statusText">No files queued</span>
           </div>
+          <div id="appAlert" class="app-alert info" role="status" aria-live="polite">Ready. Select files or drop them here to begin.</div>
         </section>
 
         <section class="summary-grid" aria-label="Processing summary">
@@ -69,6 +70,7 @@
               <p id="passwordHelp" class="field-help">Required for sensitive output: 12+ characters and 3 of uppercase, lowercase, number, symbol.</p>
               <div id="encryptionStatus" class="status-pill limited">Encryption status: not evaluated</div>
               <div id="validationSummary" class="validation-summary">Detector validation: pending</div>
+              <div id="exportMessage" class="export-message info" role="alert" aria-live="assertive">Export has not run yet.</div>
               <button id="chooseOutputBtn" type="button">Choose output directory</button>
               <button id="exportBtn" type="button">Export reviewed output</button>
             </div>
