@@ -1,5 +1,9 @@
 const VERSION = "0.4.0";
 const OUTPUT_DIR = "pii-output-v0.4.0";
+const POLICY_REFERENCES = [
+  "PBGC IM 05-09 Privacy Program",
+  "PBGC IM 10-03 Protecting Personally Identifiable Information"
+];
 
 const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
 
@@ -89,7 +93,12 @@ const state = {
   files: [],
   documents: [],
   findings: [],
-  outputHandle: null
+  outputHandle: null,
+  exportMeta: {
+    archiveName: `${OUTPUT_DIR}.zip`,
+    passwordProtected: false,
+    limitations: []
+  }
 };
 
 const $ = (id) => document.getElementById(id);
@@ -121,10 +130,7 @@ if (window.pdfjsLib) {
 }
 
 function normalizeFiles(fileList) {
-  return Array.from(fileList).filter((file) => {
-    const ext = file.name.split(".").pop().toLowerCase();
-    return allowedExtensions.has(ext);
-  });
+  return Array.from(fileList);
 }
 
 function queueFiles(fileList) {
@@ -144,14 +150,53 @@ function updateStatus(message) {
 
 async function readFile(file) {
   const ext = file.name.split(".").pop().toLowerCase();
-  if (["txt", "md", "html", "htm", "csv", "tsv", "json", "xml"].includes(ext)) {
-    return file.text();
+  if (!allowedExtensions.has(ext)) {
+    return {
+      text: "",
+      extractedTextAvailable: false,
+      limitations: [`Unsupported file extension .${ext || "unknown"} recorded and skipped.`]
+    };
   }
-  if (ext === "pdf") return readPdf(file);
-  if (ext === "docx") return readDocx(file);
-  if (ext === "xlsx") return readXlsx(file);
-  if (["db", "sqlite"].includes(ext)) return "[SQLite file queued. Browser SQL extraction is not enabled in this static release.]";
-  return "";
+  if (["txt", "md", "html", "htm", "csv", "tsv", "json", "xml"].includes(ext)) {
+    return {
+      text: await file.text(),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (ext === "pdf") {
+    return {
+      text: await readPdf(file),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (ext === "docx") {
+    return {
+      text: await readDocx(file),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (ext === "xlsx") {
+    return {
+      text: await readXlsx(file),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (["db", "sqlite"].includes(ext)) {
+    return {
+      text: "",
+      extractedTextAvailable: false,
+      limitations: ["DB/SQLite extraction is browser-limited in this static release unless a browser-safe extractor is added."]
+    };
+  }
+  return {
+    text: "",
+    extractedTextAvailable: false,
+    limitations: ["No extraction route is available for this file."]
+  };
 }
 
 async function readPdf(file) {
@@ -248,30 +293,45 @@ async function processQueue() {
     const path = file.webkitRelativePath || file.name;
     updateStatus(`Processing ${path}`);
     try {
-      const text = await readFile(file);
-      const doc = { path, name: file.name, type: file.type || "unknown", text };
+      const extracted = await readFile(file);
+      const doc = {
+        path,
+        name: file.name,
+        type: file.type || "unknown",
+        size: file.size,
+        text: extracted.text,
+        extractedTextAvailable: extracted.extractedTextAvailable,
+        limitations: extracted.limitations
+      };
       state.documents.push(doc);
+      if (extracted.limitations.length) {
+        state.findings.push(createLimitationFinding(path, extracted.limitations.join(" ")));
+      }
       state.findings.push(...detectInDocument(doc));
     } catch (error) {
-      state.findings.push({
-        id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${index}`,
-        file: path,
-        type: "READ_ERROR",
-        match: error.message,
-        masked: error.message,
-        context: "File could not be read by available browser libraries.",
-        severity: "medium",
-        confidence: 1,
-        policy: "Operational limitation recorded for auditability",
-        action: "needs_review",
-        location: { offset: 0 }
-      });
+      state.findings.push(createLimitationFinding(path, `File could not be read by available browser libraries: ${error.message}`));
     }
     els.progress.value = ((index + 1) / state.files.length) * 100;
   }
 
   updateStatus(`Processed ${state.files.length} file(s) with ${state.findings.length} finding(s)`);
   renderAll();
+}
+
+function createLimitationFinding(file, message) {
+  return {
+    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    file,
+    type: "PROCESSING_LIMITATION",
+    match: message,
+    masked: message,
+    context: message,
+    severity: "medium",
+    confidence: 1,
+    policy: "Operational limitation recorded for PBGC IM 05-09 and IM 10-03 auditability",
+    action: "needs_review",
+    location: { unavailable: true }
+  };
 }
 
 function renderAll() {
@@ -326,10 +386,24 @@ function renderFindings() {
   els.findingsBody.querySelectorAll("[data-action]").forEach((select) => {
     select.addEventListener("change", (event) => {
       const finding = state.findings.find((item) => item.id === event.target.dataset.action);
-      if (finding) finding.action = event.target.value;
+      if (finding) {
+        const nextAction = event.target.value;
+        if (["redact", "erase"].includes(nextAction) && !confirmDestructiveAction(finding, nextAction)) {
+          event.target.value = finding.action;
+          return;
+        }
+        finding.action = nextAction;
+        finding.decisionSource = "user";
+        finding.decidedAt = new Date().toISOString();
+      }
       renderSummary();
     });
   });
+}
+
+function confirmDestructiveAction(finding, action) {
+  const verb = action === "erase" ? "erase" : "redact";
+  return window.confirm(`Confirm ${verb} for ${finding.type} in ${finding.file}. This decision will affect exported redacted output and will be recorded in the review package.`);
 }
 
 function actionOption(value, label, current) {
@@ -347,11 +421,12 @@ function escapeHtml(value) {
 }
 
 function reportJson() {
+  const manifestData = manifest();
   return {
     tool: "PBGC PII Detection",
     version: VERSION,
     generatedAt: new Date().toISOString(),
-    policyReferences: ["PBGC IM 05-09 Privacy Program", "PBGC IM 10-03 Protecting Personally Identifiable Information"],
+    policyReferences: POLICY_REFERENCES,
     summary: {
       files: state.files.length,
       findings: state.findings.length,
@@ -361,7 +436,8 @@ function reportJson() {
     findings: state.findings.map((finding) => ({
       ...finding,
       match: finding.action === "retain" ? finding.match : finding.masked
-    }))
+    })),
+    manifest: manifestData
   };
 }
 
@@ -420,13 +496,20 @@ function manifest() {
       "pii-findings.json",
       "pii-findings.csv",
       "pii-findings.html",
+      "manifest.json",
       "redacted-text/*.txt",
       "redacted-pdf/*.pdf where browser PDF generation is available"
     ],
+    archive: {
+      name: state.exportMeta.archiveName,
+      passwordProtected: state.exportMeta.passwordProtected,
+      limitations: state.exportMeta.limitations
+    },
     limitations: [
       "Browser file APIs require user selection for input and output locations.",
       "Exact native document-to-PDF conversion is limited by browser libraries; extracted text PDFs are generated where supported.",
-      "Unreviewed findings remain marked as needs_review in exports."
+      "Unreviewed findings remain marked as needs_review in exports.",
+      ...state.documents.flatMap((doc) => doc.limitations || [])
     ]
   };
 }
@@ -437,8 +520,10 @@ async function exportOutput() {
     return;
   }
 
-  const files = await buildOutputFiles();
   const password = els.passwordInput.value.trim();
+  if (!confirmExportRemediation()) return;
+  prepareArchiveMetadata(password);
+  const files = await buildOutputFiles();
   const zipBlob = await createZip(files, password);
   const zipName = `${OUTPUT_DIR}.zip`;
 
@@ -446,11 +531,30 @@ async function exportOutput() {
     const dir = await state.outputHandle.getDirectoryHandle(OUTPUT_DIR, { create: true });
     await writeFile(dir, zipName, zipBlob);
     for (const file of files) await writeFile(dir, file.name, file.blob);
-    updateStatus(`Export written to selected ${OUTPUT_DIR} directory`);
+    updateStatus(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`));
   } else {
     downloadBlob(zipBlob, zipName);
-    updateStatus("Export zip downloaded through browser downloads");
+    updateStatus(exportStatusMessage("Export zip downloaded through browser downloads"));
   }
+}
+
+function prepareArchiveMetadata(password) {
+  state.exportMeta = {
+    archiveName: `${OUTPUT_DIR}.zip`,
+    passwordProtected: Boolean(password && window.zip),
+    limitations: []
+  };
+  if (!window.zip) {
+    state.exportMeta.limitations.push("zip.js unavailable; zip archive and password protection could not be created.");
+  } else if (!password) {
+    state.exportMeta.limitations.push("No password was provided; archive is not password-protected.");
+  }
+}
+
+function confirmExportRemediation() {
+  const destructiveCount = state.findings.filter((finding) => ["redact", "erase"].includes(finding.action)).length;
+  if (!destructiveCount) return true;
+  return window.confirm(`Confirm export with ${destructiveCount} redact/erase decision(s). Exported document renditions will apply these decisions and the manifest will record them.`);
 }
 
 async function buildOutputFiles() {
@@ -506,7 +610,13 @@ async function createZip(files, password) {
   for (const file of files) {
     await writer.add(file.name, new window.zip.BlobReader(file.blob));
   }
-  return writer.close();
+  const blob = await writer.close();
+  state.exportMeta.passwordProtected = Boolean(password);
+  return blob;
+}
+
+function exportStatusMessage(prefix) {
+  return `${prefix}. Archive password protected: ${state.exportMeta.passwordProtected ? "yes" : "no"}.`;
 }
 
 async function writeFile(dirHandle, name, blob) {

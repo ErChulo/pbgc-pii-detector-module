@@ -9,3 +9,6 @@
 - Added task workflow panel for detect, report, value, manage, and dispose/redact.
 - Added JSON, CSV, HTML, manifest, redacted text, optional PDF rendition, and zip export.
 - Added optional password-protected zip export through CDN zip.js when available.
+- Added explicit confirmation for redact and erase decisions before export remediation is applied.
+- Added browser-limitation records for unsupported, unreadable, DB, and SQLite inputs.
+- Aligned structured JSON output with the export manifest contract.
