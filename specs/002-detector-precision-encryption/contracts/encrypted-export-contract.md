@@ -39,6 +39,12 @@ The manifest must include:
 - `createdAt`
 - `toolVersion`
 
+## Report Evidence
+
+JSON, CSV, and HTML reports must preserve the final disposition, confidence
+reason, encryption status, and policy basis. HTML reports must include readable
+compliance evidence and encryption summary sections.
+
 ## Acceptance Checks
 
 1. Given confirmed PII and no password, export is blocked.

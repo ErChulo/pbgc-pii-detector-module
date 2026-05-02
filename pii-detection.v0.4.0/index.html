@@ -52,7 +52,7 @@
           <div class="metric"><span id="fileCount">0</span><label>Files</label></div>
           <div class="metric"><span id="findingCount">0</span><label>Findings</label></div>
           <div class="metric"><span id="highCount">0</span><label>High or Critical</label></div>
-          <div class="metric"><span id="reviewCount">0</span><label>Needs Review</label></div>
+          <div class="metric"><span id="reviewCount">0</span><label>Unresolved</label></div>
         </section>
 
         <section class="content-grid">
@@ -64,7 +64,11 @@
             <div id="severityList" class="stack"></div>
             <h2>Export</h2>
             <div class="export-stack">
-              <input id="passwordInput" type="password" placeholder="Zip password" autocomplete="new-password" />
+              <input id="passwordInput" type="password" placeholder="Encryption password" autocomplete="new-password" />
+              <input id="passwordConfirmInput" type="password" placeholder="Confirm password" autocomplete="new-password" />
+              <p id="passwordHelp" class="field-help">Required for sensitive output: 12+ characters and 3 of uppercase, lowercase, number, symbol.</p>
+              <div id="encryptionStatus" class="status-pill limited">Encryption status: not evaluated</div>
+              <div id="validationSummary" class="validation-summary">Detector validation: pending</div>
               <button id="chooseOutputBtn" type="button">Choose output directory</button>
               <button id="exportBtn" type="button">Export reviewed output</button>
             </div>
@@ -110,8 +114,8 @@
           <li><strong>Detect in context</strong><span>Extract text locally and locate direct, linkable, financial, tax, credential, and technical identifiers.</span></li>
           <li><strong>Report findings</strong><span>Record file, type, match preview, context, confidence, and policy basis.</span></li>
           <li><strong>Value severity</strong><span>Assign low, medium, high, or critical severity using type and context.</span></li>
-          <li><strong>Manage decisions</strong><span>Review every finding and choose retain, redact, erase, or needs review.</span></li>
-          <li><strong>Dispose or redact</strong><span>Export a redacted package, report, and manifest for downstream modules.</span></li>
+          <li><strong>Manage decisions</strong><span>Review every finding and choose retain, redact, erase, false positive, or unresolved.</span></li>
+          <li><strong>Dispose or redact</strong><span>Export a redacted package, report, and manifest for downstream modules. Sensitive packages require password protection.</span></li>
         </ol>
         <p class="policy-note">Policy basis: PBGC IM 05-09 Privacy Program and IM 10-03 Protecting Personally Identifiable Information.</p>
       </form>

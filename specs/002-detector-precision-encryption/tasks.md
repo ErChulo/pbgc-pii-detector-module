@@ -15,11 +15,11 @@
 
 **Purpose**: Prepare version metadata, baseline documentation, and validation material before feature implementation.
 
-- [ ] T001 Review current export, manifest, detector, and action flow in `pii-detection.v0.4.0/src/main.js`
-- [ ] T002 [P] Add detector precision/encryption entry to `pii-detection.v0.4.0/CHANGELOG.md`
-- [ ] T003 [P] Add feature scope and transport warning notes to `pii-detection.v0.4.0/README.md`
-- [ ] T004 [P] Create synthetic validation sample plan in `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T005 Confirm app version metadata remains consistent in `pii-detection.v0.4.0/VERSION`
+- [X] T001 Review current export, manifest, detector, and action flow in `pii-detection.v0.4.0/src/main.js`
+- [X] T002 [P] Add detector precision/encryption entry to `pii-detection.v0.4.0/CHANGELOG.md`
+- [X] T003 [P] Add feature scope and transport warning notes to `pii-detection.v0.4.0/README.md`
+- [X] T004 [P] Create synthetic validation sample plan in `specs/002-detector-precision-encryption/validation-samples.md`
+- [X] T005 Confirm app version metadata remains consistent in `pii-detection.v0.4.0/VERSION`
 
 ---
 
@@ -29,12 +29,12 @@
 
 **CRITICAL**: No user story work should begin until this phase is complete.
 
-- [ ] T006 Add policy reference, feature id, encryption status, and validation status constants in `pii-detection.v0.4.0/src/main.js`
-- [ ] T007 Add disposition constants for `retain`, `redact`, `erase`, `false_positive`, and `unresolved`, including migration from existing `needs_review` values, in `pii-detection.v0.4.0/src/main.js`
-- [ ] T008 Add password confirmation, encryption status, and validation summary elements in `pii-detection.v0.4.0/index.html`
-- [ ] T009 [P] Add visual styles for blocked/protected/limited encryption states in `pii-detection.v0.4.0/src/styles.css`
-- [ ] T010 Add shared manifest encryption and detector validation object builders in `pii-detection.v0.4.0/src/main.js`
-- [ ] T011 [P] Add no-server-call verification notes to `specs/002-detector-precision-encryption/quickstart.md`
+- [X] T006 Add policy reference, feature id, encryption status, and validation status constants in `pii-detection.v0.4.0/src/main.js`
+- [X] T007 Add disposition constants for `retain`, `redact`, `erase`, `false_positive`, and `unresolved`, including migration from existing `needs_review` values, in `pii-detection.v0.4.0/src/main.js`
+- [X] T008 Add password confirmation, encryption status, and validation summary elements in `pii-detection.v0.4.0/index.html`
+- [X] T009 [P] Add visual styles for blocked/protected/limited encryption states in `pii-detection.v0.4.0/src/styles.css`
+- [X] T010 Add shared manifest encryption and detector validation object builders in `pii-detection.v0.4.0/src/main.js`
+- [X] T011 [P] Add no-server-call verification notes to `specs/002-detector-precision-encryption/quickstart.md`
 
 **Checkpoint**: Shared UI and data structures are ready for story implementation.
 
@@ -48,18 +48,18 @@
 
 ### Tests for User Story 1
 
-- [ ] T012 [P] [US1] Add encrypted export acceptance cases to `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T013 [P] [US1] Add manifest schema expectations for blocked and protected exports in `specs/002-detector-precision-encryption/contracts/manifest.schema.json`
+- [X] T012 [P] [US1] Add encrypted export acceptance cases to `specs/002-detector-precision-encryption/validation-samples.md`
+- [X] T013 [P] [US1] Add manifest schema expectations for blocked and protected exports in `specs/002-detector-precision-encryption/contracts/manifest.schema.json`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement sensitive export detection for confirmed, suspected, and unresolved findings in `pii-detection.v0.4.0/src/main.js`
-- [ ] T015 [US1] Implement password acceptance requiring at least 12 characters and three character classes, plus confirmation validation before archive creation in `pii-detection.v0.4.0/src/main.js`
-- [ ] T016 [US1] Block sensitive export when password validation fails or zip password support is unavailable in `pii-detection.v0.4.0/src/main.js`
-- [ ] T017 [US1] Record `passwordRequired`, `passwordAccepted`, `passwordProtected`, `exportBlocked`, `encryptionStatus`, `validationClaim`, and limitations in `pii-detection.v0.4.0/src/main.js`
-- [ ] T018 [US1] Update export status messaging for protected, blocked, not-required, and limited states in `pii-detection.v0.4.0/src/main.js`
-- [ ] T019 [US1] Wire password confirmation and encryption status UI interactions in `pii-detection.v0.4.0/src/main.js`
-- [ ] T020 [US1] Update encrypted export user guidance in `pii-detection.v0.4.0/README.md`
+- [X] T014 [US1] Implement sensitive export detection for confirmed, suspected, and unresolved findings in `pii-detection.v0.4.0/src/main.js`
+- [X] T015 [US1] Implement password acceptance requiring at least 12 characters and three character classes, plus confirmation validation before archive creation in `pii-detection.v0.4.0/src/main.js`
+- [X] T016 [US1] Block sensitive export when password validation fails or zip password support is unavailable in `pii-detection.v0.4.0/src/main.js`
+- [X] T017 [US1] Record `passwordRequired`, `passwordAccepted`, `passwordProtected`, `exportBlocked`, `encryptionStatus`, `validationClaim`, and limitations in `pii-detection.v0.4.0/src/main.js`
+- [X] T018 [US1] Update export status messaging for protected, blocked, not-required, and limited states in `pii-detection.v0.4.0/src/main.js`
+- [X] T019 [US1] Wire password confirmation and encryption status UI interactions in `pii-detection.v0.4.0/src/main.js`
+- [X] T020 [US1] Update encrypted export user guidance in `pii-detection.v0.4.0/README.md`
 - [ ] T021 [US1] Run the US1 manual export flow from `specs/002-detector-precision-encryption/quickstart.md`
 
 **Checkpoint**: User Story 1 is independently functional and suitable as the MVP.
@@ -74,18 +74,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Add false-positive controls for directive, version, page, section, date, dollar, actuarial, plan-code, and citation examples in `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T023 [P] [US2] Add true-positive controls for SSN, taxpayer identifier, participant identifier, address, phone, email, date of birth, payment data, and person-tied benefit examples in `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T024 [P] [US2] Add detector precision validation result format to `specs/002-detector-precision-encryption/contracts/detector-precision-contract.md`
+- [X] T022 [P] [US2] Add false-positive controls for directive, version, page, section, date, dollar, actuarial, plan-code, and citation examples in `specs/002-detector-precision-encryption/validation-samples.md`
+- [X] T023 [P] [US2] Add true-positive controls for SSN, taxpayer identifier, participant identifier, address, phone, email, date of birth, payment data, and person-tied benefit examples in `specs/002-detector-precision-encryption/validation-samples.md`
+- [X] T024 [P] [US2] Add detector precision validation result format to `specs/002-detector-precision-encryption/contracts/detector-precision-contract.md`
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Add context signal extraction for nearby PII-positive and PII-negative words in `pii-detection.v0.4.0/src/main.js`
-- [ ] T026 [US2] Add non-PII downgrade rules for PBGC directive numbers, versions, pages, sections, ordinary dates, dollars, rates, plan codes, and citations in `pii-detection.v0.4.0/src/main.js`
-- [ ] T027 [US2] Add true-positive guard rules for SSN, taxpayer identifiers, person-tied contact data, payment data, and benefit records in `pii-detection.v0.4.0/src/main.js`
-- [ ] T028 [US2] Add `confidenceReason` and `contextSignals` to every generated finding in `pii-detection.v0.4.0/src/main.js`
-- [ ] T029 [US2] Display confidence explanation and false-positive action in the findings table in `pii-detection.v0.4.0/src/main.js`
-- [ ] T030 [US2] Add synthetic detector validation summary generation in `pii-detection.v0.4.0/src/main.js`
+- [X] T025 [US2] Add context signal extraction for nearby PII-positive and PII-negative words in `pii-detection.v0.4.0/src/main.js`
+- [X] T026 [US2] Add non-PII downgrade rules for PBGC directive numbers, versions, pages, sections, ordinary dates, dollars, rates, plan codes, and citations in `pii-detection.v0.4.0/src/main.js`
+- [X] T027 [US2] Add true-positive guard rules for SSN, taxpayer identifiers, person-tied contact data, payment data, and benefit records in `pii-detection.v0.4.0/src/main.js`
+- [X] T028 [US2] Add `confidenceReason` and `contextSignals` to every generated finding in `pii-detection.v0.4.0/src/main.js`
+- [X] T029 [US2] Display confidence explanation and false-positive action in the findings table in `pii-detection.v0.4.0/src/main.js`
+- [X] T030 [US2] Add synthetic detector validation summary generation in `pii-detection.v0.4.0/src/main.js`
 - [ ] T031 [US2] Run the US2 synthetic precision flow from `specs/002-detector-precision-encryption/quickstart.md`
 
 **Checkpoint**: User Story 2 is independently testable and does not weaken User Story 1.
@@ -100,16 +100,16 @@
 
 ### Tests for User Story 3
 
-- [ ] T032 [P] [US3] Add compliance evidence acceptance cases to `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T033 [P] [US3] Add report evidence expectations to `specs/002-detector-precision-encryption/contracts/encrypted-export-contract.md`
+- [X] T032 [P] [US3] Add compliance evidence acceptance cases to `specs/002-detector-precision-encryption/validation-samples.md`
+- [X] T033 [P] [US3] Add report evidence expectations to `specs/002-detector-precision-encryption/contracts/encrypted-export-contract.md`
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Add feature id, policy references, detector validation summary, encryption record, and limitations to manifest generation in `pii-detection.v0.4.0/src/main.js`
-- [ ] T035 [US3] Add confidence reason, context signals, disposition timestamp, and false-positive status to JSON export in `pii-detection.v0.4.0/src/main.js`
-- [ ] T036 [US3] Add confidence reason and encryption summary fields to CSV export in `pii-detection.v0.4.0/src/main.js`
-- [ ] T037 [US3] Add compliance evidence and encryption summary sections to HTML report output in `pii-detection.v0.4.0/src/main.js`
-- [ ] T038 [US3] Update README compliance and limitations documentation in `pii-detection.v0.4.0/README.md`
+- [X] T034 [US3] Add feature id, policy references, detector validation summary, encryption record, and limitations to manifest generation in `pii-detection.v0.4.0/src/main.js`
+- [X] T035 [US3] Add confidence reason, context signals, disposition timestamp, and false-positive status to JSON export in `pii-detection.v0.4.0/src/main.js`
+- [X] T036 [US3] Add confidence reason and encryption summary fields to CSV export in `pii-detection.v0.4.0/src/main.js`
+- [X] T037 [US3] Add compliance evidence and encryption summary sections to HTML report output in `pii-detection.v0.4.0/src/main.js`
+- [X] T038 [US3] Update README compliance and limitations documentation in `pii-detection.v0.4.0/README.md`
 - [ ] T039 [US3] Run the US3 manifest/report inspection flow from `specs/002-detector-precision-encryption/quickstart.md`
 
 **Checkpoint**: All user stories are independently functional and reports are ready for downstream review.
@@ -120,13 +120,13 @@
 
 **Purpose**: Final verification, release documentation, and repository hygiene.
 
-- [ ] T040 [P] Run `npm.cmd run build` from `pii-detection.v0.4.0` using `pii-detection.v0.4.0/package.json`
-- [ ] T041 [P] Run source scan for server calls and remote storage paths in `pii-detection.v0.4.0/src/main.js`
-- [ ] T042 [P] Validate manifest schema JSON parses in `specs/002-detector-precision-encryption/contracts/manifest.schema.json`
+- [X] T040 [P] Run `npm.cmd run build` from `pii-detection.v0.4.0` using `pii-detection.v0.4.0/package.json`
+- [X] T041 [P] Run source scan for server calls and remote storage paths in `pii-detection.v0.4.0/src/main.js`
+- [X] T042 [P] Validate manifest schema JSON parses in `specs/002-detector-precision-encryption/contracts/manifest.schema.json`
 - [ ] T043 Run complete quickstart validation from `specs/002-detector-precision-encryption/quickstart.md`
 - [ ] T044 Time the 25-finding review/export flow from `specs/002-detector-precision-encryption/quickstart.md` and record whether completion is under 10 minutes in `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T045 Update final validation notes in `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T046 Confirm changelog and release metadata are final in `pii-detection.v0.4.0/CHANGELOG.md`
+- [X] T045 Update final validation notes in `specs/002-detector-precision-encryption/validation-samples.md`
+- [X] T046 Confirm changelog and release metadata are final in `pii-detection.v0.4.0/CHANGELOG.md`
 
 ---
 

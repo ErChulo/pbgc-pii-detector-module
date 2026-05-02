@@ -101,6 +101,7 @@
       "type": "object",
       "required": [
         "passwordRequired",
+        "passwordAccepted",
         "passwordProtected",
         "exportBlocked",
         "encryptionStatus",

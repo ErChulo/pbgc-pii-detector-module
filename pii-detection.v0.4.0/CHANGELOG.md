@@ -13,3 +13,5 @@
 - Added browser-limitation records for unsupported, unreadable, DB, and SQLite inputs.
 - Aligned structured JSON output with the export manifest contract.
 - Added persistent dark/light theme toggle with higher-contrast theme color tokens.
+- Enforced password-protected export for sensitive transport packages with manifest evidence and FIPS-validation limitation disclosure.
+- Added contextual false-positive downgrades, `false_positive` and `unresolved` dispositions, and synthetic precision validation evidence.

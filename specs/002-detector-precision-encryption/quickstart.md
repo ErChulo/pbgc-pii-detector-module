@@ -37,6 +37,7 @@
 ## Expected Results
 
 - No server, upload, telemetry, or remote storage behavior occurs.
+- Source scan of `pii-detection.v0.4.0/src/main.js` shows no `fetch`, `XMLHttpRequest`, `sendBeacon`, `WebSocket`, or remote storage paths.
 - Sensitive export without a password is blocked.
 - Unresolved findings force password-protected export.
 - The manifest records password requirement, password-protected status, encryption limitations, policy references, version metadata, and detector behavior.

@@ -53,6 +53,9 @@ Each validation run should record:
 - `explanation`
 - `passed`
 
+The manifest `detectorValidation.controls` array should use the same fields so
+downstream reviewers can compare expected and actual detector behavior.
+
 ## Acceptance Checks
 
 1. `IM 10-03`, `v0.4.0`, `page 12`, `section 5.2`, `$1,250,000`, and `5.75%` are not high-confidence PII without person-identifying context.
