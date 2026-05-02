@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ErChulo/pbgc-pii-detector-module/contracts/export-package.schema.json",
+  "title": "PBGC PII Detection Export Package",
+  "type": "object",
+  "required": ["tool", "version", "generatedAt", "policyReferences", "summary", "findings", "manifest"],
+  "properties": {
+    "tool": {
+      "type": "string",
+      "const": "PBGC PII Detection"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^0\\.4\\.0$"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policyReferences": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["files", "findings", "highOrCritical", "needsReview"],
+      "properties": {
+        "files": { "type": "integer", "minimum": 0 },
+        "findings": { "type": "integer", "minimum": 0 },
+        "highOrCritical": { "type": "integer", "minimum": 0 },
+        "needsReview": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "file", "type", "masked", "context", "severity", "confidence", "policy", "action"],
+        "properties": {
+          "id": { "type": "string" },
+          "file": { "type": "string" },
+          "type": { "type": "string" },
+          "match": { "type": "string" },
+          "masked": { "type": "string" },
+          "context": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "policy": { "type": "string" },
+          "action": {
+            "type": "string",
+            "enum": ["retain", "redact", "erase", "needs_review"]
+          },
+          "location": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "required": ["outputDirectory", "toolVersion", "createdAt", "sourceFiles", "outputs", "limitations"],
+      "properties": {
+        "outputDirectory": { "type": "string" },
+        "toolVersion": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "sourceFiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "path", "size", "type"],
+            "properties": {
+              "name": { "type": "string" },
+              "path": { "type": "string" },
+              "size": { "type": "integer", "minimum": 0 },
+              "type": { "type": "string" }
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "archive": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "passwordProtected": { "type": "boolean" },
+            "limitations": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
