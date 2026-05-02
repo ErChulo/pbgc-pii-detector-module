@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PII Detector</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<!-- CDN libraries -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+</head>
+
+<body>
+
+<h1>PII Detector</h1>
+
+<div id="drop">
+Drag & Drop files here
+</div>
+
+<br>
+
+<input type="file" id="fileInput" multiple>
+
+<br><br>
+
+<input type="file" id="dirInput" webkitdirectory directory multiple>
+
+<h2>Results</h2>
+
+<table id="results">
+<tr>
+<th>File</th>
+<th>Type</th>
+<th>Match</th>
+</tr>
+</table>
+
+<script src="js/pii-patterns.js"></script>
+<script src="js/file-readers.js"></script>
+<script src="js/detector.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

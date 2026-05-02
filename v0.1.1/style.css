@@ -1,0 +1,23 @@
+body{
+font-family:Arial;
+margin:40px;
+background:#f3f3f3;
+}
+
+#drop{
+border:3px dashed #999;
+padding:40px;
+text-align:center;
+background:white;
+}
+
+table{
+border-collapse:collapse;
+width:100%;
+margin-top:20px;
+}
+
+td,th{
+border:1px solid #ccc;
+padding:6px;
+}
