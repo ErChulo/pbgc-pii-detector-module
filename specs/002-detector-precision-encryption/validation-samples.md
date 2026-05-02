@@ -60,3 +60,4 @@ Use synthetic data only. These samples support the quickstart and implementation
 - Manifest schema JSON parses successfully.
 - Source scan found no `fetch`, `XMLHttpRequest`, `sendBeacon`, `WebSocket`, or remote storage usage in `pii-detection.v0.4.0/src/main.js`; the only URL in that file is the existing pdf.js worker CDN reference.
 - Browser quickstart validation and the 25-finding timed review/export flow still require an interactive browser run.
+- Compliance mapping was corrected after reading `im-05-09.pdf` and `im-10-03.pdf`; password-protected zip is documented as local protection, not PBGC-approved external dissemination.

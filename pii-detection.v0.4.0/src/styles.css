@@ -317,6 +317,23 @@ select {
   line-height: 1.35;
 }
 
+.compliance-warning {
+  margin: 0;
+  border: 2px solid #b91c1c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fee2e2;
+  color: #7f1d1d;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+:root[data-theme="dark"] .compliance-warning {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
 .app-alert,
 .export-message {
   border: 2px solid var(--line);

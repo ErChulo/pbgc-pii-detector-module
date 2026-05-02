@@ -8,6 +8,8 @@ with IM 05-09 and IM 10-03.
 
 - Open `index.html` directly in a browser for static use.
 - No server calls, telemetry, uploads, or remote storage are used by app code.
+- Compliance basis is read from local `im-05-09.pdf` and `im-10-03.pdf` in the
+  repository root.
 - CDN libraries are referenced from `index.html` for document parsing and export.
 - `npm run dev` is available only for Vite development convenience.
 - The header theme button switches between high-contrast light and dark themes.
@@ -32,4 +34,13 @@ validation evidence, policy references, and any limitations encountered.
 
 Password-protected archive export is a transport safeguard. The app does not
 claim FIPS 140-3 validation unless that can be demonstrated for the actual
-browser/library encryption path.
+browser/library encryption path. IM 10-03 still requires PBGC-approved data
+encryption or secure file transfer for electronic dissemination of PII outside
+PBGC, and CPO approval for removal of PII from PBGC or contractor devices,
+networks, or the workplace. The app records those limitations but cannot grant
+approval.
+
+## Directive Mapping
+
+The feature policy mapping is documented in
+`specs/002-detector-precision-encryption/policy-mapping.md`.

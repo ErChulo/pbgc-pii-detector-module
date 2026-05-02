@@ -1,13 +1,23 @@
 const VERSION = "0.4.0";
 const FEATURE_ID = "002-detector-precision-encryption";
 const OUTPUT_DIR = "pii-output-v0.4.0";
-const VALIDATION_CLAIM = "Password-protected archive export is enforced for sensitive transport. This browser/library path is not claimed as FIPS 140-3 validated unless PBGC can independently validate the actual runtime path.";
+const VALIDATION_CLAIM = "Password-protected archive export is enforced as a local safeguard. IM 10-03 still requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC; this browser/library path is not claimed as FIPS 140-3 validated or PBGC-approved unless independently validated and approved.";
 const POLICY_REFERENCES = [
   "PBGC IM 05-09 Privacy Program",
   "PBGC IM 10-03 Protecting Personally Identifiable Information",
   "Privacy Act of 1974, 5 U.S.C. 552a",
   "OMB M-17-12 Preparing for and Responding to a Breach of Personally Identifiable Information",
   "NIST SP 800-53 Rev. 5 Security and Privacy Controls"
+];
+const POLICY_OBLIGATIONS = [
+  "IM 05-09: protect PII commensurate with sensitivity, criticality, and value; PII includes participant, beneficiary, employee, and contractor information.",
+  "IM 05-09 and IM 10-03: PII includes information that identifies a person alone or when combined with linked or linkable information.",
+  "IM 10-03: use synthetic data for release testing, training, and production support unless an approved policy deviation exists.",
+  "IM 10-03: collect, maintain, and disseminate PII only for a PBGC business need and only with need-to-know access.",
+  "IM 10-03: removal of PII from PBGC or contractor devices, networks, or the workplace requires Chief Privacy Officer approval for PII.",
+  "IM 10-03: electronic dissemination of PII outside PBGC must be required and use a PBGC-approved data encryption method or secure file transfer application.",
+  "IM 10-03: dispose of electronic media and paper documents containing PII when no longer needed according to PBGC records and CUI directives.",
+  "IM 05-09 and IM 10-03: suspected or confirmed breaches must be reported through PBGC breach/incident reporting processes."
 ];
 
 const DISPOSITIONS = {
@@ -790,6 +800,7 @@ function reportHtml() {
     <p>Generated ${new Date().toISOString()}</p>
     <h2>Compliance Evidence</h2>
     <p>Policy references: ${POLICY_REFERENCES.map(escapeHtml).join("; ")}</p>
+    <ul>${POLICY_OBLIGATIONS.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
     <p>Detector validation: false-positive pass rate ${formatRate(state.detectorValidation.falsePositivePassRate)}, true-positive pass rate ${formatRate(state.detectorValidation.truePositivePassRate)}.</p>
     <h2>Encryption Summary</h2>
     <p>Status: ${escapeHtml(encryption.encryptionStatus)}. Password required: ${encryption.passwordRequired ? "yes" : "no"}. Password protected: ${encryption.passwordProtected ? "yes" : "no"}.</p>
@@ -826,6 +837,7 @@ function manifest() {
     toolVersion: VERSION,
     createdAt: new Date().toISOString(),
     policyReferences: POLICY_REFERENCES,
+    policyObligations: POLICY_OBLIGATIONS,
     summary: summaryData(),
     sourceFiles: state.files.map((file) => ({
       name: file.name,
@@ -870,6 +882,9 @@ function manifest() {
 function limitationList() {
   return [
     "Browser file APIs require user selection for input and output locations.",
+    "Password-protected zip export is local protection only; IM 10-03 requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC.",
+    "The app cannot grant CPO approval for removal of PII from PBGC devices, networks, contractor environments, or the workplace.",
+    "Redaction/export actions do not replace PBGC records management, CUI disposal, or breach reporting procedures.",
     "Exact native document-to-PDF conversion is limited by browser libraries; extracted text PDFs are generated where supported.",
     "Unresolved findings remain marked as unresolved in exports.",
     VALIDATION_CLAIM,
