@@ -89,6 +89,9 @@
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **FR-PBGC-001**: System MUST identify PBGC IM 05-09 and IM 10-03 obligations affected by this feature.
+- **FR-PBGC-002**: System MUST preserve browser-only processing with no server calls unless explicitly rejected by governance.
+- **FR-PBGC-003**: System MUST define severity, confidence, user remediation actions, and export evidence for PII findings.
 
 *Example of marking unclear requirements:*
 
@@ -126,3 +129,11 @@
 - [Assumption about scope boundaries, e.g., "Mobile support is out of scope for v1"]
 - [Assumption about data/environment, e.g., "Existing authentication system will be reused"]
 - [Dependency on existing system/service, e.g., "Requires access to the existing user profile API"]
+
+## PBGC Privacy and Runtime Constraints *(mandatory)*
+
+- Policy basis: [Map to IM 05-09, IM 10-03, or NEEDS CLARIFICATION]
+- PII data handling: [How PII remains local, minimized, and protected]
+- Remediation evidence: [How retain/redact/erase decisions are recorded]
+- Export constraints: [Manifest, encryption/password behavior, and downstream module/LLM readiness]
+- Versioning: [Required version metadata or changelog effect]

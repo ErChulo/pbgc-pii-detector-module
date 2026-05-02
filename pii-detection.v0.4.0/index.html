@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBGC PII Detection v0.4.0</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.57/dist/zip-full.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Pension Benefit Guaranty Corporation</p>
+          <h1>PII Detection v0.4.0</h1>
+        </div>
+        <div class="version">Static SPA</div>
+      </header>
+
+      <main class="workspace">
+        <section class="ingest-panel" aria-label="Document intake">
+          <div id="dropZone" class="drop-zone" tabindex="0">
+            <strong>Drop files here</strong>
+            <span>PDF, DOCX, XLSX, CSV, TXT, HTML, MD, JSON, XML, SQLite DB</span>
+          </div>
+          <div class="controls">
+            <label class="file-button">
+              Select files
+              <input id="fileInput" type="file" multiple />
+            </label>
+            <label class="file-button">
+              Select directory
+              <input id="dirInput" type="file" webkitdirectory directory multiple />
+            </label>
+            <button id="workflowBtn" type="button">Workflow</button>
+            <button id="processBtn" type="button">Process queue</button>
+          </div>
+          <div class="progress-row">
+            <progress id="progress" value="0" max="100"></progress>
+            <span id="statusText">No files queued</span>
+          </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Processing summary">
+          <div class="metric"><span id="fileCount">0</span><label>Files</label></div>
+          <div class="metric"><span id="findingCount">0</span><label>Findings</label></div>
+          <div class="metric"><span id="highCount">0</span><label>High or Critical</label></div>
+          <div class="metric"><span id="reviewCount">0</span><label>Needs Review</label></div>
+        </section>
+
+        <section class="content-grid">
+          <aside class="panel">
+            <div class="panel-title">
+              <h2>Severity</h2>
+              <button id="clearBtn" type="button">Clear</button>
+            </div>
+            <div id="severityList" class="stack"></div>
+            <h2>Export</h2>
+            <div class="export-stack">
+              <input id="passwordInput" type="password" placeholder="Zip password" autocomplete="new-password" />
+              <button id="chooseOutputBtn" type="button">Choose output directory</button>
+              <button id="exportBtn" type="button">Export reviewed output</button>
+            </div>
+          </aside>
+
+          <section class="panel findings-panel">
+            <div class="panel-title">
+              <h2>Findings</h2>
+              <select id="severityFilter" aria-label="Filter severity">
+                <option value="all">All severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>File</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Context</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="findingsBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="workflowDialog">
+      <form method="dialog" class="dialog-panel">
+        <div class="panel-title">
+          <h2>PII handling workflow</h2>
+          <button type="submit">Close</button>
+        </div>
+        <ol class="workflow-list">
+          <li><strong>Detect in context</strong><span>Extract text locally and locate direct, linkable, financial, tax, credential, and technical identifiers.</span></li>
+          <li><strong>Report findings</strong><span>Record file, type, match preview, context, confidence, and policy basis.</span></li>
+          <li><strong>Value severity</strong><span>Assign low, medium, high, or critical severity using type and context.</span></li>
+          <li><strong>Manage decisions</strong><span>Review every finding and choose retain, redact, erase, or needs review.</span></li>
+          <li><strong>Dispose or redact</strong><span>Export a redacted package, report, and manifest for downstream modules.</span></li>
+        </ol>
+        <p class="policy-note">Policy basis: PBGC IM 05-09 Privacy Program and IM 10-03 Protecting Personally Identifiable Information.</p>
+      </form>
+    </dialog>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

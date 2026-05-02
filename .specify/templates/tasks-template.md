@@ -51,6 +51,7 @@ description: "Task list template for feature implementation"
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
+- [ ] T004 [P] Add or update version metadata and changelog entries
 
 ---
 
@@ -62,12 +63,15 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework
-- [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
-- [ ] T009 Setup environment configuration management
+- [ ] T005 Setup database schema and migrations framework
+- [ ] T006 [P] Implement authentication/authorization framework
+- [ ] T007 [P] Setup API routing and middleware structure
+- [ ] T008 Create base models/entities that all stories depend on
+- [ ] T009 Configure error handling and logging infrastructure
+- [ ] T010 Setup environment configuration management
+- [ ] T011 [P] Verify PBGC IM 05-09 and IM 10-03 policy mapping
+- [ ] T012 [P] Verify browser-only operation and no server-call paths
+- [ ] T013 [P] Create synthetic PII validation samples for changed detection/remediation behavior
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -155,6 +159,8 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX Performance optimization across all stories
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening
+- [ ] TXXX PBGC privacy compliance review against IM 05-09 and IM 10-03
+- [ ] TXXX Verify export manifest, version metadata, and encrypted archive behavior where applicable
 - [ ] TXXX Run quickstart.md validation
 
 ---

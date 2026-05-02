@@ -31,7 +31,12 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- PBGC policy alignment: [How this feature complies with IM 05-09 and IM 10-03]
+- Browser-only processing: [Confirm no backend, telemetry, remote storage, or required build step]
+- Contextual detection and severity: [Defined PII context, confidence, and severity behavior]
+- User-governed remediation: [Review, retain/redact/erase decisions, and confirmation behavior]
+- Versioned delivery and exports: [Version metadata, changelog, manifest, and archive/encryption plan]
+- Synthetic verification: [Synthetic PII samples or manual checks used for validation]
 
 ## Project Structure
 
