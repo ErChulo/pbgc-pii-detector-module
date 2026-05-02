@@ -66,7 +66,7 @@ As a PBGC actuary or reviewer, I need the output manifest and reports to show ho
 ### Functional Requirements
 
 - **FR-001**: The app MUST require password-protected export for any transportable output package that contains, references, or can reconstruct confirmed, suspected, or unresolved PII.
-- **FR-002**: The app MUST block sensitive package export when no password is supplied, the password is blank, the password fails minimum acceptance rules, or password confirmation does not match.
+- **FR-002**: The app MUST block sensitive package export when no password is supplied, the password is blank, the password is fewer than 12 characters, the password does not include at least three of uppercase letters, lowercase letters, numbers, and symbols, or password confirmation does not match.
 - **FR-003**: The app MUST prevent unencrypted transport packages for sensitive output when password protection is unavailable, and MUST present a clear limitation instead of creating an unprotected package.
 - **FR-004**: The app MUST record encryption enforcement evidence in the export manifest, including password-required status, encryption result, user-visible limitations, export timestamp, and version metadata.
 - **FR-005**: The app MUST avoid claiming federal cryptographic validation unless that validation can be demonstrated for the actual export mechanism; otherwise, the manifest MUST state the validation limitation.
@@ -86,7 +86,7 @@ As a PBGC actuary or reviewer, I need the output manifest and reports to show ho
 - **Detection Finding**: A potential PII item with category, matched value or redacted preview, location, context, confidence, severity, policy relevance, and current disposition.
 - **False-Positive Control**: A known non-PII pattern or example used to verify that the detector does not over-report ordinary PBGC actuarial, policy, regulatory, or document-control values.
 - **Encryption Enforcement Record**: Manifest evidence showing whether sensitive export required a password, whether protected export succeeded, and what limitations were disclosed.
-- **Review Disposition**: The user decision for a finding, including retain, redact, erase, false positive, unresolved, timestamp, and evidence needed for audit review.
+- **Review Disposition**: The user decision for a finding, including `retain`, `redact`, `erase`, `false_positive`, `unresolved`, timestamp, and evidence needed for audit review.
 - **Policy Mapping**: A report section that connects app behavior and user decisions to PBGC privacy directives and relevant federal privacy/security obligations.
 
 ## Success Criteria *(mandatory)*
@@ -113,6 +113,6 @@ As a PBGC actuary or reviewer, I need the output manifest and reports to show ho
 
 - Policy basis: PBGC IM 05-09 Privacy Program; PBGC IM 10-03 Protecting Personally Identifiable Information; Privacy Act of 1974; E-Government Act privacy obligations; OMB M-17-12 breach-response guidance; NIST SP 800-53 security and privacy control expectations; applicable federal information-security obligations.
 - PII data handling: PII remains local to the user-controlled browser session; detection and review minimize exposure by showing only the needed context and by preserving disposition evidence.
-- Remediation evidence: Retain, redact, erase, false-positive, and unresolved decisions are recorded per finding with severity, confidence, context, and reviewer action evidence.
+- Remediation evidence: `retain`, `redact`, `erase`, `false_positive`, and `unresolved` decisions are recorded per finding with severity, confidence, context, and reviewer action evidence.
 - Export constraints: Sensitive transport packages require password protection; unencrypted sensitive packages are blocked; manifests must identify encryption status, password enforcement, policy references, version metadata, and any cryptographic validation limitation.
 - Versioning: The feature must update project version metadata, changelog/release notes, and report manifests so downstream modules can identify the detector rules and encryption enforcement behavior used.

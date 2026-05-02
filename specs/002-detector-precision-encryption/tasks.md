@@ -30,7 +30,7 @@
 **CRITICAL**: No user story work should begin until this phase is complete.
 
 - [ ] T006 Add policy reference, feature id, encryption status, and validation status constants in `pii-detection.v0.4.0/src/main.js`
-- [ ] T007 Add `false_positive` and `unresolved` disposition support to action constants/state handling in `pii-detection.v0.4.0/src/main.js`
+- [ ] T007 Add disposition constants for `retain`, `redact`, `erase`, `false_positive`, and `unresolved`, including migration from existing `needs_review` values, in `pii-detection.v0.4.0/src/main.js`
 - [ ] T008 Add password confirmation, encryption status, and validation summary elements in `pii-detection.v0.4.0/index.html`
 - [ ] T009 [P] Add visual styles for blocked/protected/limited encryption states in `pii-detection.v0.4.0/src/styles.css`
 - [ ] T010 Add shared manifest encryption and detector validation object builders in `pii-detection.v0.4.0/src/main.js`
@@ -54,7 +54,7 @@
 ### Implementation for User Story 1
 
 - [ ] T014 [US1] Implement sensitive export detection for confirmed, suspected, and unresolved findings in `pii-detection.v0.4.0/src/main.js`
-- [ ] T015 [US1] Implement password acceptance and confirmation validation before archive creation in `pii-detection.v0.4.0/src/main.js`
+- [ ] T015 [US1] Implement password acceptance requiring at least 12 characters and three character classes, plus confirmation validation before archive creation in `pii-detection.v0.4.0/src/main.js`
 - [ ] T016 [US1] Block sensitive export when password validation fails or zip password support is unavailable in `pii-detection.v0.4.0/src/main.js`
 - [ ] T017 [US1] Record `passwordRequired`, `passwordAccepted`, `passwordProtected`, `exportBlocked`, `encryptionStatus`, `validationClaim`, and limitations in `pii-detection.v0.4.0/src/main.js`
 - [ ] T018 [US1] Update export status messaging for protected, blocked, not-required, and limited states in `pii-detection.v0.4.0/src/main.js`
@@ -120,12 +120,13 @@
 
 **Purpose**: Final verification, release documentation, and repository hygiene.
 
-- [ ] T040 [P] Run optional build verification using `pii-detection.v0.4.0/package.json`
+- [ ] T040 [P] Run `npm.cmd run build` from `pii-detection.v0.4.0` using `pii-detection.v0.4.0/package.json`
 - [ ] T041 [P] Run source scan for server calls and remote storage paths in `pii-detection.v0.4.0/src/main.js`
 - [ ] T042 [P] Validate manifest schema JSON parses in `specs/002-detector-precision-encryption/contracts/manifest.schema.json`
 - [ ] T043 Run complete quickstart validation from `specs/002-detector-precision-encryption/quickstart.md`
-- [ ] T044 Update final validation notes in `specs/002-detector-precision-encryption/validation-samples.md`
-- [ ] T045 Confirm changelog and release metadata are final in `pii-detection.v0.4.0/CHANGELOG.md`
+- [ ] T044 Time the 25-finding review/export flow from `specs/002-detector-precision-encryption/quickstart.md` and record whether completion is under 10 minutes in `specs/002-detector-precision-encryption/validation-samples.md`
+- [ ] T045 Update final validation notes in `specs/002-detector-precision-encryption/validation-samples.md`
+- [ ] T046 Confirm changelog and release metadata are final in `pii-detection.v0.4.0/CHANGELOG.md`
 
 ---
 

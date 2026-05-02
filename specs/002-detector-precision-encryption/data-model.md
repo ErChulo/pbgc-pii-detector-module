@@ -92,7 +92,7 @@ Represents evidence that sensitive transport protection was required and applied
 **Fields**:
 
 - `passwordRequired`: Whether sensitive output required password protection.
-- `passwordAccepted`: Whether the supplied password passed acceptance rules.
+- `passwordAccepted`: Whether the supplied password passed acceptance rules: at least 12 characters and at least three of uppercase letters, lowercase letters, numbers, and symbols.
 - `exportBlocked`: Whether export was blocked.
 - `blockedReason`: Reason export was blocked, if applicable.
 - `archiveName`: Protected archive name, if produced.
