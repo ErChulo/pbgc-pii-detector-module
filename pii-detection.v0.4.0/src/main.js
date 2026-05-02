@@ -29,6 +29,46 @@ const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
 
 const detectors = [
   {
+    type: "PBGC_DIRECTIVE_REFERENCE",
+    regex: /\b(?:PBGC\s+)?IM\s+\d{2}-\d{2}\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "PBGC directive reference; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "VERSION_REFERENCE",
+    regex: /\bv\d+\.\d+\.\d+\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Version reference; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "PAGE_OR_SECTION_REFERENCE",
+    regex: /\b(?:page|section)\s+\d+(?:\.\d+)?\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Page or section reference; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "ACTUARIAL_VALUE",
+    regex: /\$[\d,]+(?:\.\d{2})?\b|\b\d+(?:\.\d+)?%\b/g,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Actuarial, dollar, or rate value; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "REGULATORY_CITATION",
+    regex: /\b\d+\s+U\.S\.C\.\s+\d+[a-z]?\b|\b\d+\s+C\.F\.R\.\s+\d+(?:\.\d+)?\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Regulatory citation; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
     type: "SSN",
     regex: /\b(?!000|666|9\d{2})\d{3}[- ]?\d{2}[- ]?\d{4}\b/g,
     severity: "critical",
@@ -259,6 +299,17 @@ function updateStatus(message) {
   els.statusText.textContent = message;
 }
 
+function showActionError(error) {
+  const message = error?.message || String(error);
+  updateStatus(`Action failed: ${message}`);
+  console.error(error);
+}
+
+function newId(prefix = "id") {
+  if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function initTheme() {
   const savedTheme = localStorage.getItem("pbgc-pii-theme");
   const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -374,10 +425,9 @@ function detectInDocument(doc) {
 
       const context = contextFor(doc.text, index, value.length);
       const analysis = analyzeCandidate(detector, value, context);
-      if (analysis.suppressed) continue;
 
       findings.push({
-        id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${findings.length}`,
+        id: newId("finding"),
         file: doc.path,
         type: analysis.type,
         match: value,
@@ -410,7 +460,12 @@ function analyzeCandidate(detector, value, context) {
   let action = defaultActionFor(severity);
   let suppressed = false;
 
-  if (detector.type === "SSN" && negative > 0 && positive === 0) {
+  if (detector.falsePositive) {
+    severity = "low";
+    confidence = 0.2;
+    confidenceReason = "Recognized as PBGC document, policy, actuarial, or regulatory text rather than PII.";
+    action = DISPOSITIONS.falsePositive;
+  } else if (detector.type === "SSN" && negative > 0 && positive === 0) {
     type = "NUMERIC_PATTERN_AMBIGUOUS";
     severity = "low";
     confidence = 0.35;
@@ -440,7 +495,10 @@ function analyzeCandidate(detector, value, context) {
     confidenceReason = `Elevated because nearby PII context was found: ${contextSignals.positive.join(", ")}.`;
     action = DISPOSITIONS.redact;
   } else if (negative > 0 && positive === 0 && detector.type === "IP_ADDRESS") {
-    suppressed = true;
+    severity = "low";
+    confidence = 0.25;
+    confidenceReason = `Downgraded because nearby non-PII context was found: ${contextSignals.negative.join(", ")}.`;
+    action = DISPOSITIONS.falsePositive;
   }
 
   return {
@@ -532,7 +590,7 @@ async function processQueue() {
 
 function createLimitationFinding(file, message) {
   return {
-    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    id: newId("limitation"),
     file,
     type: "PROCESSING_LIMITATION",
     match: message,
@@ -818,33 +876,37 @@ function encryptionRecord() {
 }
 
 async function exportOutput() {
-  if (!state.findings.length && !state.documents.length) {
-    updateStatus("Process files before exporting");
-    return;
-  }
+  try {
+    if (!state.findings.length && !state.documents.length) {
+      updateStatus("Process files before exporting");
+      return;
+    }
 
-  const validation = prepareArchiveMetadata();
-  renderEncryptionStatus();
-  if (validation.blocked) {
-    updateStatus(validation.message);
-    return;
-  }
-  if (!confirmExportRemediation()) return;
+    const validation = prepareArchiveMetadata();
+    renderEncryptionStatus();
+    if (validation.blocked) {
+      updateStatus(validation.message);
+      return;
+    }
+    if (!confirmExportRemediation()) return;
 
-  const files = await buildOutputFiles();
-  const zipBlob = await createZip(files, els.passwordInput.value);
-  const zipName = `${OUTPUT_DIR}.zip`;
+    const files = await buildOutputFiles();
+    const zipBlob = await createZip(files, els.passwordInput.value);
+    const zipName = `${OUTPUT_DIR}.zip`;
 
-  if (state.outputHandle) {
-    const dir = await state.outputHandle.getDirectoryHandle(OUTPUT_DIR, { create: true });
-    await writeFile(dir, zipName, zipBlob);
-    for (const file of files) await writeFile(dir, file.name, file.blob);
-    updateStatus(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`));
-  } else {
-    downloadBlob(zipBlob, zipName);
-    updateStatus(exportStatusMessage("Export zip downloaded through browser downloads"));
+    if (state.outputHandle) {
+      const dir = await state.outputHandle.getDirectoryHandle(OUTPUT_DIR, { create: true });
+      await writeFile(dir, zipName, zipBlob);
+      for (const file of files) await writeFile(dir, file.name, file.blob);
+      updateStatus(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`));
+    } else {
+      downloadBlob(zipBlob, zipName);
+      updateStatus(exportStatusMessage("Export zip downloaded through browser downloads"));
+    }
+    renderEncryptionStatus();
+  } catch (error) {
+    showActionError(error);
   }
-  renderEncryptionStatus();
 }
 
 function prepareArchiveMetadata() {
@@ -1064,12 +1126,20 @@ function safeFileName(name) {
 }
 
 async function chooseOutputDirectory() {
-  if (!window.showDirectoryPicker) {
-    updateStatus("Directory picker is not supported; export will download a zip");
-    return;
+  try {
+    if (!window.showDirectoryPicker) {
+      updateStatus("Directory picker is not supported in this browser or file mode; export will download a zip instead.");
+      return;
+    }
+    state.outputHandle = await window.showDirectoryPicker({ mode: "readwrite" });
+    updateStatus(`Output directory selected; ${OUTPUT_DIR} will be created there`);
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      updateStatus("Output directory selection was cancelled; export will download a zip instead.");
+      return;
+    }
+    showActionError(error);
   }
-  state.outputHandle = await window.showDirectoryPicker({ mode: "readwrite" });
-  updateStatus(`Output directory selected; ${OUTPUT_DIR} will be created there`);
 }
 
 function clearState() {
@@ -1086,7 +1156,7 @@ function clearState() {
 
 els.fileInput.addEventListener("change", (event) => queueFiles(event.target.files));
 els.dirInput.addEventListener("change", (event) => queueFiles(event.target.files));
-els.processBtn.addEventListener("click", processQueue);
+els.processBtn.addEventListener("click", () => processQueue().catch(showActionError));
 els.workflowBtn.addEventListener("click", () => els.workflowDialog.showModal());
 els.clearBtn.addEventListener("click", clearState);
 els.severityFilter.addEventListener("change", renderFindings);
