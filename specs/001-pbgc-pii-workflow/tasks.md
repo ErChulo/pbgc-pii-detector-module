@@ -47,7 +47,7 @@ description: "Task list for PBGC PII Detection Workflow implementation"
 - [ ] T009 Define supported file extension handling and skipped-file limitation handling in `pii-detection.v0.4.0/src/main.js`
 - [ ] T010 [P] Add base responsive layout tokens for panels, tables, controls, and status messaging in `pii-detection.v0.4.0/src/styles.css`
 - [ ] T011 [P] Verify no app-initiated server-call paths are present in `pii-detection.v0.4.0/src/main.js`
-- [ ] T012 [P] Verify export JSON shape against `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json`
+- [ ] T012 [P] Review export JSON contract requirements in `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json` before implementing export generation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 
@@ -64,7 +64,7 @@ description: "Task list for PBGC PII Detection Workflow implementation"
 - [ ] T013 [US1] Implement file input queueing for selected files in `pii-detection.v0.4.0/src/main.js`
 - [ ] T014 [US1] Implement directory input queueing with relative path preservation in `pii-detection.v0.4.0/src/main.js`
 - [ ] T015 [US1] Implement drag-and-drop queueing behavior in `pii-detection.v0.4.0/src/main.js`
-- [ ] T016 [US1] Implement text extraction routing for TXT, MD, HTML, CSV, TSV, JSON, XML, PDF, DOCX, XLSX, DB, and SQLite inputs in `pii-detection.v0.4.0/src/main.js`
+- [ ] T016 [US1] Implement text extraction routing for TXT, MD, HTML, CSV, TSV, JSON, XML, PDF, DOCX, and XLSX inputs, and record DB/SQLite files as browser-limited unless a browser-safe extractor is added, in `pii-detection.v0.4.0/src/main.js`
 - [ ] T017 [US1] Implement unreadable, unsupported, corrupted, or password-protected file limitation records in `pii-detection.v0.4.0/src/main.js`
 - [ ] T018 [US1] Implement PII detector definitions for direct identifiers, linkable identifiers, financial or tax identifiers, credentials, and technical secrets in `pii-detection.v0.4.0/src/main.js`
 - [ ] T019 [US1] Implement contextual finding creation with masked values, confidence, severity, policy basis, and location data in `pii-detection.v0.4.0/src/main.js`
@@ -88,8 +88,9 @@ description: "Task list for PBGC PII Detection Workflow implementation"
 - [ ] T024 [US2] Implement severity summary counts for total, high or critical, and needs-review findings in `pii-detection.v0.4.0/src/main.js`
 - [ ] T025 [US2] Implement severity filtering for the findings table in `pii-detection.v0.4.0/src/main.js`
 - [ ] T026 [US2] Implement disposition selector handling for retain, redact, erase, and needs review in `pii-detection.v0.4.0/src/main.js`
-- [ ] T027 [US2] Preserve user-changed disposition decisions in review state and export state in `pii-detection.v0.4.0/src/main.js`
-- [ ] T028 [US2] Style severity badges, summary metrics, and disposition controls in `pii-detection.v0.4.0/src/styles.css`
+- [ ] T027 [US2] Implement explicit confirmation for redact and erase disposition changes before they affect export state in `pii-detection.v0.4.0/src/main.js`
+- [ ] T028 [US2] Preserve user-changed disposition decisions in review state and export state in `pii-detection.v0.4.0/src/main.js`
+- [ ] T029 [US2] Style severity badges, summary metrics, and disposition controls in `pii-detection.v0.4.0/src/styles.css`
 
 **Checkpoint**: User Stories 1 and 2 both work independently.
 
@@ -103,14 +104,14 @@ description: "Task list for PBGC PII Detection Workflow implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement structured findings report generation matching `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json` in `pii-detection.v0.4.0/src/main.js`
-- [ ] T030 [US3] Implement human-readable HTML and CSV report generation in `pii-detection.v0.4.0/src/main.js`
-- [ ] T031 [US3] Implement export manifest generation with source files, outputs, tool version, policy references, export time, and limitations in `pii-detection.v0.4.0/src/main.js`
-- [ ] T032 [US3] Implement redacted and erased text output generation based on disposition decisions in `pii-detection.v0.4.0/src/main.js`
-- [ ] T033 [US3] Implement PDF text rendition generation when browser PDF generation is available in `pii-detection.v0.4.0/src/main.js`
-- [ ] T034 [US3] Implement output directory selection and download fallback behavior in `pii-detection.v0.4.0/src/main.js`
-- [ ] T035 [US3] Implement optional password-protected zip export and explicit not-encrypted limitation reporting in `pii-detection.v0.4.0/src/main.js`
-- [ ] T036 [US3] Style export controls and export status messaging in `pii-detection.v0.4.0/src/styles.css`
+- [ ] T030 [US3] Implement structured findings report generation matching `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json` in `pii-detection.v0.4.0/src/main.js`
+- [ ] T031 [US3] Implement human-readable HTML and CSV report generation in `pii-detection.v0.4.0/src/main.js`
+- [ ] T032 [US3] Implement export manifest generation with source files, outputs, tool version, policy references, export time, and limitations in `pii-detection.v0.4.0/src/main.js`
+- [ ] T033 [US3] Implement redacted and erased text output generation based on disposition decisions in `pii-detection.v0.4.0/src/main.js`
+- [ ] T034 [US3] Implement PDF text rendition generation when browser PDF generation is available in `pii-detection.v0.4.0/src/main.js`
+- [ ] T035 [US3] Implement output directory selection and download fallback behavior in `pii-detection.v0.4.0/src/main.js`
+- [ ] T036 [US3] Implement optional password-protected zip export and explicit not-encrypted limitation reporting in `pii-detection.v0.4.0/src/main.js`
+- [ ] T037 [US3] Style export controls and export status messaging in `pii-detection.v0.4.0/src/styles.css`
 
 **Checkpoint**: User Stories 1, 2, and 3 produce a complete review and export package.
 
@@ -124,10 +125,10 @@ description: "Task list for PBGC PII Detection Workflow implementation"
 
 ### Implementation for User Story 4
 
-- [ ] T037 [US4] Implement workflow dialog markup for the five required tasks in `pii-detection.v0.4.0/index.html`
-- [ ] T038 [US4] Implement workflow dialog open, close, and reopen behavior without clearing review state in `pii-detection.v0.4.0/src/main.js`
-- [ ] T039 [US4] Add PBGC IM 05-09 and IM 10-03 policy basis text to the workflow panel in `pii-detection.v0.4.0/index.html`
-- [ ] T040 [US4] Style workflow dialog layout and mobile behavior in `pii-detection.v0.4.0/src/styles.css`
+- [ ] T038 [US4] Implement workflow dialog markup for the five required tasks in `pii-detection.v0.4.0/index.html`
+- [ ] T039 [US4] Implement workflow dialog open, close, and reopen behavior without clearing review state in `pii-detection.v0.4.0/src/main.js`
+- [ ] T040 [US4] Add PBGC IM 05-09 and IM 10-03 policy basis text to the workflow panel in `pii-detection.v0.4.0/index.html`
+- [ ] T041 [US4] Style workflow dialog layout and mobile behavior in `pii-detection.v0.4.0/src/styles.css`
 
 **Checkpoint**: All user stories are independently functional.
 
@@ -137,13 +138,14 @@ description: "Task list for PBGC PII Detection Workflow implementation"
 
 **Purpose**: Verify the release against the constitution, contracts, and quickstart.
 
-- [ ] T041 Run JavaScript syntax checks for `pii-detection.v0.4.0/src/main.js` and `pii-detection.v0.4.0/vite.config.js`
-- [ ] T042 Run no-server-call source scan against `pii-detection.v0.4.0/`
-- [ ] T043 Validate `pii-detection.v0.4.0/index.html` manually with synthetic PII samples following `specs/001-pbgc-pii-workflow/quickstart.md`
-- [ ] T044 Verify PBGC IM 05-09 and IM 10-03 policy mapping in `pii-detection.v0.4.0/src/main.js`
-- [ ] T045 Verify export manifest, version metadata, and encrypted archive behavior against `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json`
-- [ ] T046 Update release notes for completed behavior in `pii-detection.v0.4.0/CHANGELOG.md`
-- [ ] T047 Update runtime and export limitation documentation in `pii-detection.v0.4.0/README.md`
+- [ ] T042 Run JavaScript syntax checks for `pii-detection.v0.4.0/src/main.js` and `pii-detection.v0.4.0/vite.config.js`
+- [ ] T043 Run no-server-call source scan against `pii-detection.v0.4.0/`
+- [ ] T044 Validate `pii-detection.v0.4.0/index.html` manually with synthetic PII samples following `specs/001-pbgc-pii-workflow/quickstart.md`
+- [ ] T045 Verify PBGC IM 05-09 and IM 10-03 policy mapping in `pii-detection.v0.4.0/src/main.js`
+- [ ] T046 Verify export manifest, version metadata, and encrypted archive behavior against `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json`
+- [ ] T047 Update release notes for completed behavior in `pii-detection.v0.4.0/CHANGELOG.md`
+- [ ] T048 Update runtime and export limitation documentation in `pii-detection.v0.4.0/README.md`
+- [ ] T049 Validate generated export JSON against `specs/001-pbgc-pii-workflow/contracts/export-package.schema.json`
 
 ---
 
