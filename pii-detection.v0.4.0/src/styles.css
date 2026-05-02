@@ -309,6 +309,152 @@ select {
   color: var(--field-ink);
 }
 
+.field-help,
+.validation-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.compliance-warning {
+  margin: 0;
+  border: 2px solid #b91c1c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fee2e2;
+  color: #7f1d1d;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+:root[data-theme="dark"] .compliance-warning {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
+.app-alert,
+.export-message {
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.app-alert {
+  margin-top: 14px;
+}
+
+.export-message {
+  min-height: 48px;
+}
+
+.app-alert.info,
+.export-message.info {
+  border-color: #1d4ed8;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.app-alert.success,
+.export-message.success {
+  border-color: #047857;
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.app-alert.warning,
+.export-message.warning {
+  border-color: #92400e;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.app-alert.error,
+.export-message.error {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+:root[data-theme="dark"] .app-alert.info,
+:root[data-theme="dark"] .export-message.info {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+:root[data-theme="dark"] .app-alert.success,
+:root[data-theme="dark"] .export-message.success {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+:root[data-theme="dark"] .app-alert.warning,
+:root[data-theme="dark"] .export-message.warning {
+  background: #78350f;
+  color: #fef3c7;
+}
+
+:root[data-theme="dark"] .app-alert.error,
+:root[data-theme="dark"] .export-message.error {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
+.status-pill {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.status-pill.protected {
+  border-color: #047857;
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.status-pill.blocked {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.status-pill.limited {
+  border-color: #92400e;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.status-pill.not-required {
+  border-color: #1d4ed8;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+:root[data-theme="dark"] .status-pill.protected {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+:root[data-theme="dark"] .status-pill.blocked {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
+:root[data-theme="dark"] .status-pill.limited {
+  background: #78350f;
+  color: #fef3c7;
+}
+
+:root[data-theme="dark"] .status-pill.not-required {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
 .severity-row {
   display: flex;
   justify-content: space-between;

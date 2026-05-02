@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ErChulo/pbgc-pii-detector-module/contracts/detector-precision-encryption-manifest.schema.json",
+  "title": "PBGC PII Detector Precision and Encryption Manifest",
+  "type": "object",
+  "required": [
+    "tool",
+    "version",
+    "feature",
+    "generatedAt",
+    "policyReferences",
+    "summary",
+    "findings",
+    "encryption",
+    "limitations"
+  ],
+  "properties": {
+    "tool": {
+      "type": "string",
+      "const": "PBGC PII Detection"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^0\\.4\\.0$"
+    },
+    "feature": {
+      "type": "string",
+      "const": "002-detector-precision-encryption"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policyReferences": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "files",
+        "findings",
+        "confirmedOrSuspectedPii",
+        "unresolved",
+        "falsePositives",
+        "highOrCritical"
+      ],
+      "properties": {
+        "files": { "type": "integer", "minimum": 0 },
+        "findings": { "type": "integer", "minimum": 0 },
+        "confirmedOrSuspectedPii": { "type": "integer", "minimum": 0 },
+        "unresolved": { "type": "integer", "minimum": 0 },
+        "falsePositives": { "type": "integer", "minimum": 0 },
+        "highOrCritical": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "file",
+          "type",
+          "masked",
+          "context",
+          "severity",
+          "confidence",
+          "confidenceReason",
+          "policy",
+          "action"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "file": { "type": "string" },
+          "type": { "type": "string" },
+          "masked": { "type": "string" },
+          "context": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "confidenceReason": { "type": "string" },
+          "policy": { "type": "string" },
+          "action": {
+            "type": "string",
+            "enum": ["retain", "redact", "erase", "false_positive", "unresolved"]
+          }
+        }
+      }
+    },
+    "encryption": {
+      "type": "object",
+      "required": [
+        "passwordRequired",
+        "passwordAccepted",
+        "passwordProtected",
+        "exportBlocked",
+        "encryptionStatus",
+        "validationClaim",
+        "limitations"
+      ],
+      "properties": {
+        "passwordRequired": { "type": "boolean" },
+        "passwordAccepted": { "type": "boolean" },
+        "passwordProtected": { "type": "boolean" },
+        "exportBlocked": { "type": "boolean" },
+        "blockedReason": { "type": "string" },
+        "archiveName": { "type": "string" },
+        "encryptionStatus": {
+          "type": "string",
+          "enum": ["not_required", "protected", "blocked", "limited"]
+        },
+        "validationClaim": { "type": "string" },
+        "limitations": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "detectorValidation": {
+      "type": "object",
+      "properties": {
+        "falsePositivePassRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "truePositivePassRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "controls": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
