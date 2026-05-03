@@ -16,9 +16,10 @@ with IM 05-09 and IM 10-03.
 - Detector precision rules downgrade common PBGC directive, version, page,
   section, actuarial, rate, dollar, plan-code, and citation values unless nearby
   context supports a PII interpretation.
-- The Custom regex dialog stores user-defined regex tests locally in browser
-  IndexedDB so agency- or case-specific patterns persist in the same browser
-  profile without uploads or server storage.
+- The Custom regex dialog lets users create, edit, and delete user-defined
+  regex tests stored locally in browser IndexedDB so agency- or case-specific
+  patterns persist in the same browser profile without uploads or server
+  storage.
 
 ## Export Notes
 

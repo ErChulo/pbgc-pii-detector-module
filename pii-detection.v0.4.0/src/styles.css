@@ -621,6 +621,17 @@ dialog::backdrop {
   color: var(--field-ink);
 }
 
+.regex-actions,
+.regex-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hidden {
+  display: none !important;
+}
+
 .custom-regex-report h3 {
   margin: 0 0 8px;
   font-size: 0.95rem;
@@ -640,6 +651,11 @@ dialog::backdrop {
   border-radius: 8px;
   padding: 10px;
   background: var(--panel-raised);
+}
+
+.custom-regex-item.is-editing {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .custom-regex-item code {

@@ -239,7 +239,8 @@ const state = {
   outputHandle: null,
   exportMeta: defaultExportMeta(),
   detectorValidation: null,
-  customRegexTests: []
+  customRegexTests: [],
+  editingCustomRegexId: null
 };
 
 const $ = (id) => document.getElementById(id);
@@ -257,6 +258,7 @@ const els = {
   customRegexDescription: $("customRegexDescription"),
   customRegexPattern: $("customRegexPattern"),
   addCustomRegexBtn: $("addCustomRegexBtn"),
+  cancelCustomRegexEditBtn: $("cancelCustomRegexEditBtn"),
   customRegexStatus: $("customRegexStatus"),
   customRegexList: $("customRegexList"),
   progress: $("progress"),
@@ -774,19 +776,22 @@ async function addCustomRegexTest() {
     return;
   }
 
+  const existing = state.editingCustomRegexId
+    ? state.customRegexTests.find((item) => item.id === state.editingCustomRegexId)
+    : null;
   const test = {
-    id: newId("regex"),
+    id: existing?.id || newId("regex"),
     description,
     pattern,
-    flags: "gi",
-    createdAt: new Date().toISOString()
+    flags: existing?.flags || "gi",
+    createdAt: existing?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
   await saveCustomRegexTest(test);
   state.customRegexTests = await loadCustomRegexTests();
-  els.customRegexDescription.value = "";
-  els.customRegexPattern.value = "";
+  resetCustomRegexForm();
   renderCustomRegexList();
-  updateCustomRegexStatus("Custom regex test saved.", "success");
+  updateCustomRegexStatus(existing ? "Custom regex test updated." : "Custom regex test saved.", "success");
   state.detectorValidation = runDetectorValidation();
   renderValidationSummary();
 }
@@ -794,10 +799,34 @@ async function addCustomRegexTest() {
 async function removeCustomRegexTest(id) {
   await deleteCustomRegexTest(id);
   state.customRegexTests = await loadCustomRegexTests();
+  if (state.editingCustomRegexId === id) resetCustomRegexForm();
   renderCustomRegexList();
   updateCustomRegexStatus("Custom regex test removed.", "success");
   state.detectorValidation = runDetectorValidation();
   renderValidationSummary();
+}
+
+function editCustomRegexTest(id) {
+  const test = state.customRegexTests.find((item) => item.id === id);
+  if (!test) {
+    updateCustomRegexStatus("That custom regex test is no longer available.", "error");
+    return;
+  }
+  state.editingCustomRegexId = id;
+  els.customRegexDescription.value = test.description;
+  els.customRegexPattern.value = test.pattern;
+  els.addCustomRegexBtn.textContent = "Save changes";
+  els.cancelCustomRegexEditBtn.classList.remove("hidden");
+  renderCustomRegexList();
+  updateCustomRegexStatus("Editing selected custom regex test.", "info");
+}
+
+function resetCustomRegexForm() {
+  state.editingCustomRegexId = null;
+  els.customRegexDescription.value = "";
+  els.customRegexPattern.value = "";
+  els.addCustomRegexBtn.textContent = "Add regex";
+  els.cancelCustomRegexEditBtn.classList.add("hidden");
 }
 
 function updateCustomRegexStatus(message = "", tone = "") {
@@ -813,14 +842,20 @@ function renderCustomRegexList() {
     return;
   }
   els.customRegexList.innerHTML = state.customRegexTests.map((test) => `
-    <div class="custom-regex-item">
+    <div class="custom-regex-item ${state.editingCustomRegexId === test.id ? "is-editing" : ""}">
       <div>
         <strong>${escapeHtml(test.description)}</strong>
         <code>${escapeHtml(test.pattern)}</code>
       </div>
-      <button class="danger" type="button" data-custom-regex-delete="${escapeHtml(test.id)}">Delete</button>
+      <div class="regex-item-actions">
+        <button type="button" data-custom-regex-edit="${escapeHtml(test.id)}">Edit</button>
+        <button class="danger" type="button" data-custom-regex-delete="${escapeHtml(test.id)}">Delete</button>
+      </div>
     </div>
   `).join("");
+  els.customRegexList.querySelectorAll("[data-custom-regex-edit]").forEach((button) => {
+    button.addEventListener("click", () => editCustomRegexTest(button.dataset.customRegexEdit));
+  });
   els.customRegexList.querySelectorAll("[data-custom-regex-delete]").forEach((button) => {
     button.addEventListener("click", () => removeCustomRegexTest(button.dataset.customRegexDelete).catch(showActionError));
   });
@@ -1025,11 +1060,12 @@ function manifest() {
       size: file.size,
       type: file.type || "unknown"
     })),
-    customRegexTests: state.customRegexTests.map(({ id, description, pattern, createdAt }) => ({
+    customRegexTests: state.customRegexTests.map(({ id, description, pattern, createdAt, updatedAt }) => ({
       id,
       description,
       pattern,
-      createdAt
+      createdAt,
+      updatedAt
     })),
     findings: state.findings.map((finding) => ({
       id: finding.id,
@@ -1396,6 +1432,11 @@ els.customRegexBtn.addEventListener("click", () => {
   els.customRegexDialog.showModal();
 });
 els.addCustomRegexBtn.addEventListener("click", () => addCustomRegexTest().catch(showActionError));
+els.cancelCustomRegexEditBtn.addEventListener("click", () => {
+  resetCustomRegexForm();
+  renderCustomRegexList();
+  updateCustomRegexStatus();
+});
 els.clearBtn.addEventListener("click", clearState);
 els.severityFilter.addEventListener("change", renderFindings);
 els.exportBtn.addEventListener("click", exportOutput);

@@ -144,7 +144,10 @@
             Regex
             <input id="customRegexPattern" type="text" placeholder="e.g., \\bABC-\\d{6}\\b" />
           </label>
-          <button id="addCustomRegexBtn" type="button">Add regex</button>
+          <div class="regex-actions">
+            <button id="addCustomRegexBtn" type="button">Add regex</button>
+            <button id="cancelCustomRegexEditBtn" class="secondary hidden" type="button">Cancel edit</button>
+          </div>
         </div>
         <div id="customRegexStatus" class="field-help" role="status" aria-live="polite">User-defined tests are stored locally in this browser.</div>
         <div class="custom-regex-report">
