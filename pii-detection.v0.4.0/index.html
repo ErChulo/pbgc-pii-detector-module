@@ -40,6 +40,7 @@
               <input id="dirInput" type="file" webkitdirectory directory multiple />
             </label>
             <button id="workflowBtn" type="button">Workflow</button>
+            <button id="customRegexBtn" type="button">Custom regex</button>
             <button id="processBtn" type="button">Process queue</button>
           </div>
           <div class="progress-row">
@@ -124,6 +125,32 @@
           <li><strong>Dispose or redact</strong><span>Export a redacted package, report, and manifest for downstream modules. Sensitive packages require password protection.</span></li>
         </ol>
         <p class="policy-note">Policy basis: PBGC IM 05-09 Privacy Program and IM 10-03 Protecting Personally Identifiable Information. Use synthetic data for testing. Removal or external dissemination of PII requires PBGC authorization and approved transfer protection.</p>
+      </form>
+    </dialog>
+
+    <dialog id="customRegexDialog">
+      <form method="dialog" class="dialog-panel custom-regex-panel">
+        <div class="panel-title">
+          <h2>Custom regex tests</h2>
+          <button type="submit">Close</button>
+        </div>
+        <p class="policy-note">Add local, persistent regex tests for cases not covered by the built-in library. Use a short description so reviewers understand the purpose.</p>
+        <div class="regex-form">
+          <label>
+            Description
+            <input id="customRegexDescription" type="text" maxlength="120" placeholder="e.g., Agency-specific participant code" />
+          </label>
+          <label>
+            Regex
+            <input id="customRegexPattern" type="text" placeholder="e.g., \\bABC-\\d{6}\\b" />
+          </label>
+          <button id="addCustomRegexBtn" type="button">Add regex</button>
+        </div>
+        <div id="customRegexStatus" class="field-help" role="status" aria-live="polite">User-defined tests are stored locally in this browser.</div>
+        <div class="custom-regex-report">
+          <h3>Saved tests</h3>
+          <div id="customRegexList" class="custom-regex-list"></div>
+        </div>
       </form>
     </dialog>
 

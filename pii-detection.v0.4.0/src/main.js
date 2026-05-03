@@ -1,6 +1,8 @@
 const VERSION = "0.4.0";
 const FEATURE_ID = "002-detector-precision-encryption";
 const OUTPUT_DIR = "pii-output-v0.4.0";
+const CUSTOM_REGEX_DB = "pbgc-pii-detector";
+const CUSTOM_REGEX_STORE = "customRegexTests";
 const VALIDATION_CLAIM = "Password-protected archive export is enforced as a local safeguard. IM 10-03 still requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC; this browser/library path is not claimed as FIPS 140-3 validated or PBGC-approved unless independently validated and approved.";
 const POLICY_REFERENCES = [
   "PBGC IM 05-09 Privacy Program",
@@ -236,7 +238,8 @@ const state = {
   findings: [],
   outputHandle: null,
   exportMeta: defaultExportMeta(),
-  detectorValidation: null
+  detectorValidation: null,
+  customRegexTests: []
 };
 
 const $ = (id) => document.getElementById(id);
@@ -249,6 +252,13 @@ const els = {
   processBtn: $("processBtn"),
   workflowBtn: $("workflowBtn"),
   workflowDialog: $("workflowDialog"),
+  customRegexBtn: $("customRegexBtn"),
+  customRegexDialog: $("customRegexDialog"),
+  customRegexDescription: $("customRegexDescription"),
+  customRegexPattern: $("customRegexPattern"),
+  addCustomRegexBtn: $("addCustomRegexBtn"),
+  customRegexStatus: $("customRegexStatus"),
+  customRegexList: $("customRegexList"),
   progress: $("progress"),
   statusText: $("statusText"),
   appAlert: $("appAlert"),
@@ -269,9 +279,7 @@ const els = {
 };
 
 initTheme();
-state.detectorValidation = runDetectorValidation();
-renderEncryptionStatus();
-renderValidationSummary();
+initializeApp();
 
 if (window.pdfjsLib) {
   window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -289,6 +297,18 @@ function defaultExportMeta() {
     validationClaim: VALIDATION_CLAIM,
     limitations: []
   };
+}
+
+async function initializeApp() {
+  try {
+    state.customRegexTests = await loadCustomRegexTests();
+    updateCustomRegexStatus();
+    renderCustomRegexList();
+  } catch (error) {
+    updateCustomRegexStatus(`Custom regex storage unavailable: ${error.message}`, "error");
+  }
+  state.detectorValidation = runDetectorValidation();
+  renderAll();
 }
 
 function normalizeFiles(fileList) {
@@ -326,6 +346,64 @@ function showActionError(error) {
 function newId(prefix = "id") {
   if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function openCustomRegexDb() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      reject(new Error("IndexedDB is not available in this browser"));
+      return;
+    }
+    const request = window.indexedDB.open(CUSTOM_REGEX_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(CUSTOM_REGEX_STORE)) {
+        const store = db.createObjectStore(CUSTOM_REGEX_STORE, { keyPath: "id" });
+        store.createIndex("createdAt", "createdAt");
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("IndexedDB open failed"));
+  });
+}
+
+function idbRequest(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("IndexedDB request failed"));
+  });
+}
+
+async function loadCustomRegexTests() {
+  if (!window.indexedDB) return [];
+  const db = await openCustomRegexDb();
+  try {
+    const tx = db.transaction(CUSTOM_REGEX_STORE, "readonly");
+    const items = await idbRequest(tx.objectStore(CUSTOM_REGEX_STORE).getAll());
+    return items.sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+  } finally {
+    db.close();
+  }
+}
+
+async function saveCustomRegexTest(test) {
+  const db = await openCustomRegexDb();
+  try {
+    const tx = db.transaction(CUSTOM_REGEX_STORE, "readwrite");
+    await idbRequest(tx.objectStore(CUSTOM_REGEX_STORE).put(test));
+  } finally {
+    db.close();
+  }
+}
+
+async function deleteCustomRegexTest(id) {
+  const db = await openCustomRegexDb();
+  try {
+    const tx = db.transaction(CUSTOM_REGEX_STORE, "readwrite");
+    await idbRequest(tx.objectStore(CUSTOM_REGEX_STORE).delete(id));
+  } finally {
+    db.close();
+  }
 }
 
 function initTheme() {
@@ -429,10 +507,10 @@ async function readXlsx(file) {
   }).join("\n\n");
 }
 
-function detectInDocument(doc) {
+function detectInDocument(doc, detectorList = activeDetectors()) {
   const findings = [];
   const seen = new Set();
-  for (const detector of detectors) {
+  for (const detector of detectorList) {
     detector.regex.lastIndex = 0;
     for (const match of doc.text.matchAll(detector.regex)) {
       const value = match[0];
@@ -466,6 +544,36 @@ function detectInDocument(doc) {
   return findings.sort((a, b) => severityRank[b.severity] - severityRank[a.severity]);
 }
 
+function activeDetectors() {
+  return [...detectors, ...state.customRegexTests.map(customRegexToDetector)];
+}
+
+function customRegexToDetector(test) {
+  return {
+    type: `CUSTOM_${safeDetectorType(test.description)}`,
+    regex: new RegExp(test.pattern, normalizeRegexFlags(test.flags)),
+    severity: "medium",
+    confidence: 0.65,
+    policy: `User-defined regex: ${test.description}`,
+    custom: true,
+    description: test.description
+  };
+}
+
+function normalizeRegexFlags(flags = "gi") {
+  const accepted = new Set(String(flags || "gi").replace(/[^gimsuy]/g, "").split(""));
+  accepted.add("g");
+  return Array.from(accepted).join("");
+}
+
+function safeDetectorType(value) {
+  return String(value || "REGEX")
+    .replace(/[^A-Za-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toUpperCase()
+    .slice(0, 40) || "REGEX";
+}
+
 function analyzeCandidate(detector, value, context) {
   const contextSignals = extractContextSignals(context);
   const positive = contextSignals.positive.length;
@@ -483,6 +591,11 @@ function analyzeCandidate(detector, value, context) {
     confidence = 0.2;
     confidenceReason = "Recognized as PBGC document, policy, actuarial, or regulatory text rather than PII.";
     action = DISPOSITIONS.falsePositive;
+  } else if (detector.custom) {
+    severity = "medium";
+    confidence = 0.65;
+    confidenceReason = `Matched user-defined regex test: ${detector.description}.`;
+    action = DISPOSITIONS.unresolved;
   } else if (detector.type === "SSN" && negative > 0 && positive === 0) {
     type = "NUMERIC_PATTERN_AMBIGUOUS";
     severity = "low";
@@ -647,6 +760,72 @@ function normalizeAction(action) {
   return DISPOSITIONS.unresolved;
 }
 
+async function addCustomRegexTest() {
+  const description = els.customRegexDescription.value.trim();
+  const pattern = els.customRegexPattern.value.trim();
+  if (!description || !pattern) {
+    updateCustomRegexStatus("Enter both a short description and a regex pattern.", "error");
+    return;
+  }
+  try {
+    new RegExp(pattern, normalizeRegexFlags());
+  } catch (error) {
+    updateCustomRegexStatus(`Regex syntax error: ${error.message}`, "error");
+    return;
+  }
+
+  const test = {
+    id: newId("regex"),
+    description,
+    pattern,
+    flags: "gi",
+    createdAt: new Date().toISOString()
+  };
+  await saveCustomRegexTest(test);
+  state.customRegexTests = await loadCustomRegexTests();
+  els.customRegexDescription.value = "";
+  els.customRegexPattern.value = "";
+  renderCustomRegexList();
+  updateCustomRegexStatus("Custom regex test saved.", "success");
+  state.detectorValidation = runDetectorValidation();
+  renderValidationSummary();
+}
+
+async function removeCustomRegexTest(id) {
+  await deleteCustomRegexTest(id);
+  state.customRegexTests = await loadCustomRegexTests();
+  renderCustomRegexList();
+  updateCustomRegexStatus("Custom regex test removed.", "success");
+  state.detectorValidation = runDetectorValidation();
+  renderValidationSummary();
+}
+
+function updateCustomRegexStatus(message = "", tone = "") {
+  if (!els.customRegexStatus) return;
+  els.customRegexStatus.textContent = message || `${state.customRegexTests.length} saved user-defined regex test(s).`;
+  els.customRegexStatus.className = `field-help ${tone}`.trim();
+}
+
+function renderCustomRegexList() {
+  if (!els.customRegexList) return;
+  if (!state.customRegexTests.length) {
+    els.customRegexList.innerHTML = '<p class="field-help">No user-defined regex tests saved.</p>';
+    return;
+  }
+  els.customRegexList.innerHTML = state.customRegexTests.map((test) => `
+    <div class="custom-regex-item">
+      <div>
+        <strong>${escapeHtml(test.description)}</strong>
+        <code>${escapeHtml(test.pattern)}</code>
+      </div>
+      <button class="danger" type="button" data-custom-regex-delete="${escapeHtml(test.id)}">Delete</button>
+    </div>
+  `).join("");
+  els.customRegexList.querySelectorAll("[data-custom-regex-delete]").forEach((button) => {
+    button.addEventListener("click", () => removeCustomRegexTest(button.dataset.customRegexDelete).catch(showActionError));
+  });
+}
+
 function renderAll() {
   renderSummary();
   renderSeverity();
@@ -802,6 +981,7 @@ function reportHtml() {
     <p>Policy references: ${POLICY_REFERENCES.map(escapeHtml).join("; ")}</p>
     <ul>${POLICY_OBLIGATIONS.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
     <p>Detector validation: false-positive pass rate ${formatRate(state.detectorValidation.falsePositivePassRate)}, true-positive pass rate ${formatRate(state.detectorValidation.truePositivePassRate)}.</p>
+    <p>User-defined regex tests active: ${state.customRegexTests.length}.</p>
     <h2>Encryption Summary</h2>
     <p>Status: ${escapeHtml(encryption.encryptionStatus)}. Password required: ${encryption.passwordRequired ? "yes" : "no"}. Password protected: ${encryption.passwordProtected ? "yes" : "no"}.</p>
     <p>${escapeHtml(encryption.validationClaim)}</p>
@@ -844,6 +1024,12 @@ function manifest() {
       path: file.webkitRelativePath || file.name,
       size: file.size,
       type: file.type || "unknown"
+    })),
+    customRegexTests: state.customRegexTests.map(({ id, description, pattern, createdAt }) => ({
+      id,
+      description,
+      pattern,
+      createdAt
     })),
     findings: state.findings.map((finding) => ({
       id: finding.id,
@@ -1107,7 +1293,7 @@ function renderValidationSummary() {
 
 function runDetectorValidation() {
   const controls = validationControls.map((control) => {
-    const findings = detectInDocument({ path: control.id, text: control.sampleText });
+    const findings = detectInDocument({ path: control.id, text: control.sampleText }, detectors);
     const highConfidencePii = findings.some((finding) => normalizeAction(finding.action) !== DISPOSITIONS.falsePositive && finding.confidence >= 0.7 && severityRank[finding.severity] >= severityRank.medium);
     const detectedPii = findings.some((finding) => normalizeAction(finding.action) !== DISPOSITIONS.falsePositive);
     const passed = control.expected === "detected" ? detectedPii : !highConfidencePii;
@@ -1204,6 +1390,12 @@ els.fileInput.addEventListener("change", (event) => queueFiles(event.target.file
 els.dirInput.addEventListener("change", (event) => queueFiles(event.target.files));
 els.processBtn.addEventListener("click", () => processQueue().catch(showActionError));
 els.workflowBtn.addEventListener("click", () => els.workflowDialog.showModal());
+els.customRegexBtn.addEventListener("click", () => {
+  renderCustomRegexList();
+  updateCustomRegexStatus();
+  els.customRegexDialog.showModal();
+});
+els.addCustomRegexBtn.addEventListener("click", () => addCustomRegexTest().catch(showActionError));
 els.clearBtn.addEventListener("click", clearState);
 els.severityFilter.addEventListener("change", renderFindings);
 els.exportBtn.addEventListener("click", exportOutput);
@@ -1233,7 +1425,6 @@ els.dropZone.addEventListener("drop", (event) => {
   queueFiles(event.dataTransfer.files);
 });
 
-renderAll();
 setTimeout(() => {
   if (!els.workflowDialog.open) els.workflowDialog.showModal();
 }, 300);

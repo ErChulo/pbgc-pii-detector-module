@@ -111,6 +111,17 @@ button.secondary {
   border-color: var(--line);
 }
 
+button.danger {
+  background: var(--field);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+button.danger:hover {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
 input[type="file"] {
   display: none;
 }
@@ -333,6 +344,22 @@ select {
   color: var(--muted);
   font-size: 0.86rem;
   line-height: 1.35;
+}
+
+.field-help.success {
+  color: #047857;
+}
+
+.field-help.error {
+  color: #b91c1c;
+}
+
+:root[data-theme="dark"] .field-help.success {
+  color: #6ee7b7;
+}
+
+:root[data-theme="dark"] .field-help.error {
+  color: #fca5a5;
 }
 
 .compact-details {
@@ -566,6 +593,61 @@ dialog::backdrop {
   display: block;
   color: var(--muted);
   margin-top: 3px;
+}
+
+.custom-regex-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.regex-form {
+  display: grid;
+  gap: 10px;
+}
+
+.regex-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.regex-form input {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: var(--field);
+  color: var(--field-ink);
+}
+
+.custom-regex-report h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.custom-regex-list {
+  display: grid;
+  gap: 8px;
+}
+
+.custom-regex-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-raised);
+}
+
+.custom-regex-item code {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 860px) {
