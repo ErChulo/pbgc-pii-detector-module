@@ -265,8 +265,7 @@ const els = {
   passwordInput: $("passwordInput"),
   passwordConfirmInput: $("passwordConfirmInput"),
   encryptionStatus: $("encryptionStatus"),
-  validationSummary: $("validationSummary"),
-  exportMessage: $("exportMessage")
+  validationSummary: $("validationSummary")
 };
 
 initTheme();
@@ -317,16 +316,10 @@ function updateAlert(message, tone = "info") {
   els.appAlert.className = `app-alert ${tone}`;
 }
 
-function updateExportMessage(message, tone = "info") {
-  els.exportMessage.textContent = message;
-  els.exportMessage.className = `export-message ${tone}`;
-}
-
 function showActionError(error) {
   const message = error?.message || String(error);
   updateStatus(`Action failed: ${message}`);
   updateAlert(`Action failed: ${message}`, "error");
-  updateExportMessage(`Action failed: ${message}`, "error");
   console.error(error);
 }
 
@@ -920,7 +913,6 @@ async function exportOutput() {
     if (!state.findings.length && !state.documents.length) {
       updateStatus("Process files before exporting");
       updateAlert("Export cannot run yet. Process files first, then review findings.", "warning");
-      updateExportMessage("Export cannot run yet. Process files first, then review findings.", "warning");
       return;
     }
 
@@ -929,11 +921,10 @@ async function exportOutput() {
     if (validation.blocked) {
       updateStatus(validation.message);
       updateAlert(validation.message, "error");
-      updateExportMessage(validation.message, "error");
       return;
     }
     if (!confirmExportRemediation()) {
-      updateExportMessage("Export cancelled before package creation.", "warning");
+      updateAlert("Export cancelled before package creation.", "warning");
       return;
     }
 
@@ -947,12 +938,10 @@ async function exportOutput() {
       for (const file of files) await writeFile(dir, file.name, file.blob);
       updateStatus(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`));
       updateAlert(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`), "success");
-      updateExportMessage(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`), "success");
     } else {
       downloadBlob(zipBlob, zipName);
       updateStatus(exportStatusMessage("Export zip downloaded through browser downloads"));
       updateAlert(exportStatusMessage("Export zip downloaded through browser downloads"), "success");
-      updateExportMessage(exportStatusMessage("Export zip downloaded through browser downloads"), "success");
     }
     renderEncryptionStatus();
   } catch (error) {
@@ -1182,19 +1171,16 @@ async function chooseOutputDirectory() {
       const message = "This browser does not support choosing an output folder from this page. Use Export reviewed output; the zip will download through the browser downloads folder.";
       updateStatus("Directory picker is not supported; export will download a zip instead.");
       updateAlert(message, "warning");
-      updateExportMessage(message, "warning");
       return;
     }
     state.outputHandle = await window.showDirectoryPicker({ mode: "readwrite" });
     updateStatus(`Output directory selected; ${OUTPUT_DIR} will be created there`);
     updateAlert(`Output directory selected. Export will create ${OUTPUT_DIR} there.`, "success");
-    updateExportMessage(`Output directory selected. Export will create ${OUTPUT_DIR} there.`, "success");
   } catch (error) {
     if (error?.name === "AbortError") {
       const message = "Output directory selection was cancelled. Export will download a zip through the browser downloads folder.";
       updateStatus("Output directory selection was cancelled; export will download a zip instead.");
       updateAlert(message, "warning");
-      updateExportMessage(message, "warning");
       return;
     }
     showActionError(error);
@@ -1211,7 +1197,6 @@ function clearState() {
   els.passwordConfirmInput.value = "";
   updateStatus("No files queued");
   updateAlert("Ready. Select files or drop them here to begin.", "info");
-  updateExportMessage("Export has not run yet.", "info");
   renderAll();
 }
 

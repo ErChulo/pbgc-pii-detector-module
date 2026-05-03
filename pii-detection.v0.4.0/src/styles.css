@@ -335,25 +335,27 @@ select {
   line-height: 1.35;
 }
 
-.compliance-warning {
-  margin: 0;
-  border: 2px solid #b91c1c;
+.compact-details {
+  border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 10px 12px;
-  background: #fee2e2;
-  color: #7f1d1d;
-  font-size: 0.9rem;
+  padding: 8px 10px;
+  background: var(--panel-raised);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.compact-details summary {
+  color: var(--ink);
+  cursor: pointer;
   font-weight: 750;
-  line-height: 1.35;
 }
 
-:root[data-theme="dark"] .compliance-warning {
-  background: #7f1d1d;
-  color: #fee2e2;
+.compact-details p {
+  margin: 8px 0 0;
+  line-height: 1.4;
 }
 
-.app-alert,
-.export-message {
+.app-alert {
   border: 2px solid var(--line);
   border-radius: 8px;
   padding: 12px 14px;
@@ -365,58 +367,46 @@ select {
   margin-top: 14px;
 }
 
-.export-message {
-  min-height: 48px;
-}
-
-.app-alert.info,
-.export-message.info {
+.app-alert.info {
   border-color: #1d4ed8;
   background: #dbeafe;
   color: #1e3a8a;
 }
 
-.app-alert.success,
-.export-message.success {
+.app-alert.success {
   border-color: #047857;
   background: #d1fae5;
   color: #064e3b;
 }
 
-.app-alert.warning,
-.export-message.warning {
+.app-alert.warning {
   border-color: #92400e;
   background: #fef3c7;
   color: #78350f;
 }
 
-.app-alert.error,
-.export-message.error {
+.app-alert.error {
   border-color: #b91c1c;
   background: #fee2e2;
   color: #7f1d1d;
 }
 
-:root[data-theme="dark"] .app-alert.info,
-:root[data-theme="dark"] .export-message.info {
+:root[data-theme="dark"] .app-alert.info {
   background: #1e3a8a;
   color: #dbeafe;
 }
 
-:root[data-theme="dark"] .app-alert.success,
-:root[data-theme="dark"] .export-message.success {
+:root[data-theme="dark"] .app-alert.success {
   background: #064e3b;
   color: #d1fae5;
 }
 
-:root[data-theme="dark"] .app-alert.warning,
-:root[data-theme="dark"] .export-message.warning {
+:root[data-theme="dark"] .app-alert.warning {
   background: #78350f;
   color: #fef3c7;
 }
 
-:root[data-theme="dark"] .app-alert.error,
-:root[data-theme="dark"] .export-message.error {
+:root[data-theme="dark"] .app-alert.error {
   background: #7f1d1d;
   color: #fee2e2;
 }

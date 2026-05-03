@@ -67,11 +67,14 @@
             <div class="export-stack">
               <input id="passwordInput" type="password" placeholder="Encryption password" autocomplete="new-password" />
               <input id="passwordConfirmInput" type="password" placeholder="Confirm password" autocomplete="new-password" />
-              <p id="passwordHelp" class="field-help">Required for sensitive output: 12+ characters and 3 of uppercase, lowercase, number, symbol.</p>
-              <p class="compliance-warning">PBGC IM 10-03: do not disseminate PII outside PBGC unless required and using a PBGC-approved encryption method or secure file transfer application. This zip password is local protection, not PBGC approval.</p>
+              <p id="passwordHelp" class="field-help">Sensitive export requires a strong password.</p>
               <div id="encryptionStatus" class="status-pill limited">Encryption status: not evaluated</div>
-              <div id="validationSummary" class="validation-summary">Detector validation: pending</div>
-              <div id="exportMessage" class="export-message info" role="alert" aria-live="assertive">Export has not run yet.</div>
+              <details class="compact-details">
+                <summary>Compliance and validation</summary>
+                <p>Local processing only. Zip password protection is local protection, not PBGC approval for external dissemination.</p>
+                <p>IM 10-03 requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC, and authorization before removing PII from PBGC-controlled environments.</p>
+                <p id="validationSummary" class="validation-summary">Detector validation: pending</p>
+              </details>
               <button id="chooseOutputBtn" type="button">Choose output directory</button>
               <button id="exportBtn" type="button">Export reviewed output</button>
             </div>
