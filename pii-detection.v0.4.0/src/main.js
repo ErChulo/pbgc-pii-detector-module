@@ -574,9 +574,7 @@ function redactText(text, findings) {
 }
 
 function redactionToken(finding) {
-  const type = String(finding.type || "PII").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "").toUpperCase() || "PII";
-  const action = normalizeAction(finding.action) === DISPOSITIONS.erase ? "ERASED" : "REDACTED";
-  return `[${action}_${type}]`;
+  return normalizeAction(finding.action) === DISPOSITIONS.erase ? "[ERASED]" : "[REDACTED]";
 }
 
 async function processQueue() {
@@ -731,7 +729,7 @@ function renderFindings() {
 
 function confirmDestructiveAction(finding, action) {
   const verb = action === DISPOSITIONS.erase ? "erase" : "redact";
-  return window.confirm(`Confirm ${verb} for ${finding.type} in ${finding.file}. Exported OCR/LLM-ready text will keep surrounding words intact and replace only the sensitive value with a typed placeholder such as [REDACTED_SSN].`);
+  return window.confirm(`Confirm ${verb} for ${finding.type} in ${finding.file}. Exported OCR/LLM-ready text will keep surrounding words intact and replace only the sensitive value with [REDACTED] or [ERASED].`);
 }
 
 function actionOption(value, label, current) {
@@ -894,7 +892,7 @@ function limitationList() {
     "Password-protected zip export is local protection only; IM 10-03 requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC.",
     "The app cannot grant CPO approval for removal of PII from PBGC devices, networks, contractor environments, or the workplace.",
     "Redaction/export actions do not replace PBGC records management, CUI disposal, or breach reporting procedures.",
-    "Redacted outputs preserve non-PII text for OCR/LLM analysis and replace sensitive values with typed placeholders such as [REDACTED_SSN].",
+    "Redacted outputs preserve non-PII text for OCR/LLM analysis and replace sensitive values with neutral placeholders: [REDACTED] or [ERASED].",
     "Exact native document-to-PDF conversion is limited by browser libraries; extracted text PDFs are generated where supported.",
     "Unresolved findings remain marked as unresolved in exports.",
     VALIDATION_CLAIM,
