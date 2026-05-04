@@ -274,6 +274,7 @@ const els = {
   clearBtn: $("clearBtn"),
   exportBtn: $("exportBtn"),
   chooseOutputBtn: $("chooseOutputBtn"),
+  exportDestinationHelp: $("exportDestinationHelp"),
   passwordInput: $("passwordInput"),
   passwordConfirmInput: $("passwordConfirmInput"),
   encryptionStatus: $("encryptionStatus"),
@@ -309,6 +310,7 @@ async function initializeApp() {
   } catch (error) {
     updateCustomRegexStatus(`Custom regex storage unavailable: ${error.message}`, "error");
   }
+  updateExportDestinationAvailability();
   state.detectorValidation = runDetectorValidation();
   renderAll();
 }
@@ -1387,9 +1389,25 @@ function safeFileName(name) {
   return name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
 }
 
+function supportsOutputDirectoryPicker() {
+  return typeof window.showDirectoryPicker === "function";
+}
+
+function updateExportDestinationAvailability() {
+  if (!supportsOutputDirectoryPicker()) {
+    els.chooseOutputBtn.classList.add("hidden");
+    els.chooseOutputBtn.disabled = true;
+    els.exportDestinationHelp.textContent = "Output folder selection is not available in this browser. Export reviewed output will download the encrypted zip through the browser downloads folder.";
+    return;
+  }
+  els.chooseOutputBtn.classList.remove("hidden");
+  els.chooseOutputBtn.disabled = false;
+  els.exportDestinationHelp.textContent = `Optional: choose an output folder before export. Otherwise, the encrypted zip downloads through the browser downloads folder.`;
+}
+
 async function chooseOutputDirectory() {
   try {
-    if (!window.showDirectoryPicker) {
+    if (!supportsOutputDirectoryPicker()) {
       const message = "This browser does not support choosing an output folder from this page. Use Export reviewed output; the zip will download through the browser downloads folder.";
       updateStatus("Directory picker is not supported; export will download a zip instead.");
       updateAlert(message, "warning");
