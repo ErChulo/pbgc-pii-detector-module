@@ -1,0 +1,2494 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBGC PII Detection v0.4.0</title>
+    <style>
+:root {
+  color-scheme: light;
+  --ink: #111827;
+  --muted: #4b5563;
+  --line: #cbd5e1;
+  --panel: #ffffff;
+  --panel-raised: #f8fafc;
+  --page: #e5e7eb;
+  --field: #ffffff;
+  --field-ink: #111827;
+  --accent: #0f766e;
+  --accent-strong: #115e59;
+  --accent-soft: #ccfbf1;
+  --accent-soft-ink: #134e4a;
+  --focus: #0ea5e9;
+  --warn: #92400e;
+  --danger: #b91c1c;
+  --critical: #7f1d1d;
+  --low: #1d4ed8;
+  --match-bg: #fde68a;
+  --match-ink: #111827;
+  --shadow: 0 24px 70px rgb(15 23 42 / 0.22);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #f8fafc;
+  --muted: #cbd5e1;
+  --line: #475569;
+  --panel: #111827;
+  --panel-raised: #1f2937;
+  --page: #030712;
+  --field: #0f172a;
+  --field-ink: #f8fafc;
+  --accent: #2dd4bf;
+  --accent-strong: #99f6e4;
+  --accent-soft: #134e4a;
+  --accent-soft-ink: #ccfbf1;
+  --focus: #38bdf8;
+  --warn: #f59e0b;
+  --danger: #f87171;
+  --critical: #fca5a5;
+  --low: #60a5fa;
+  --match-bg: #facc15;
+  --match-ink: #111827;
+  --shadow: 0 30px 90px rgb(0 0 0 / 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--page);
+}
+
+body,
+.topbar,
+.ingest-panel,
+.panel,
+.metric,
+.drop-zone,
+th,
+td,
+input,
+select,
+button {
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button,
+.file-button {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+button:hover,
+.file-button:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+:root[data-theme="dark"] button,
+:root[data-theme="dark"] .file-button {
+  color: #042f2e;
+  font-weight: 700;
+}
+
+button.secondary {
+  background: var(--field);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+button.secondary:hover {
+  background: var(--panel-raised);
+  border-color: var(--accent);
+}
+
+button.setup-button {
+  background: #eef2ff;
+  color: #3730a3;
+  border-color: #818cf8;
+}
+
+button.setup-button:hover {
+  background: #e0e7ff;
+  border-color: #4f46e5;
+  color: #312e81;
+}
+
+button.process-button {
+  min-width: 148px;
+  background: #047857;
+  border-color: #047857;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+button.process-button:hover {
+  background: #065f46;
+  border-color: #065f46;
+}
+
+:root[data-theme="dark"] button.setup-button {
+  background: #312e81;
+  color: #e0e7ff;
+  border-color: #818cf8;
+}
+
+:root[data-theme="dark"] button.setup-button:hover {
+  background: #3730a3;
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] button.process-button {
+  background: #34d399;
+  border-color: #34d399;
+  color: #052e1f;
+}
+
+:root[data-theme="dark"] button.process-button:hover {
+  background: #6ee7b7;
+  border-color: #6ee7b7;
+}
+
+button.danger {
+  background: var(--field);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+button.danger:hover {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.app-shell {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+}
+
+.topbar {
+  min-height: 112px;
+  padding: 24px clamp(16px, 4vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-raised);
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+h1,
+h2 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+}
+
+h2 {
+  font-size: 1rem;
+}
+
+.version {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--field);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.top-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-button {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 1.28rem;
+  line-height: 1;
+}
+
+.theme-toggle {
+  background: var(--field);
+  color: var(--ink);
+  border-color: var(--line);
+  font-weight: 900;
+}
+
+.theme-toggle:hover {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  border-color: var(--accent);
+}
+
+:root[data-theme="dark"] .theme-toggle {
+  background: var(--field);
+  color: var(--ink);
+}
+
+button:focus-visible,
+.file-button:focus-within,
+select:focus-visible,
+input:focus-visible,
+.drop-zone:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.workspace {
+  padding: 24px clamp(16px, 4vw, 48px) 48px;
+}
+
+.ingest-panel,
+.panel,
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.ingest-panel {
+  padding: 18px;
+}
+
+.drop-zone {
+  min-height: 150px;
+  border: 2px dashed var(--line);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  text-align: center;
+  background: var(--panel-raised);
+}
+
+.drop-zone.is-dragging {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.drop-zone span {
+  color: var(--muted);
+}
+
+.controls,
+.progress-row,
+.panel-title,
+.export-stack {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.controls {
+  margin-top: 14px;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel-raised);
+}
+
+.input-actions .file-button {
+  background: #f0fdfa;
+  color: #134e4a;
+  border-color: #14b8a6;
+  font-weight: 800;
+}
+
+.input-actions .file-button:hover {
+  background: #ccfbf1;
+  border-color: var(--accent);
+  color: #042f2e;
+}
+
+.setup-actions {
+  border-color: #c7d2fe;
+  background: #f8fafc;
+}
+
+.process-actions {
+  margin-left: auto;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+:root[data-theme="dark"] .setup-actions {
+  border-color: #4338ca;
+  background: #1e1b4b;
+}
+
+:root[data-theme="dark"] .process-actions {
+  border-color: #047857;
+  background: #052e1f;
+}
+
+:root[data-theme="dark"] .input-actions .file-button {
+  background: #ccfbf1;
+  color: #042f2e;
+  border-color: #5eead4;
+}
+
+:root[data-theme="dark"] .input-actions .file-button:hover {
+  background: #99f6e4;
+  color: #042f2e;
+  border-color: #ccfbf1;
+}
+
+.progress-row {
+  margin-top: 14px;
+}
+
+progress {
+  width: min(420px, 100%);
+  height: 16px;
+}
+
+#statusText,
+.policy-note {
+  color: var(--muted);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.metric {
+  padding: 16px;
+}
+
+.metric span {
+  display: block;
+  font-size: 2rem;
+  font-weight: 750;
+}
+
+.metric label {
+  color: var(--muted);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.panel {
+  padding: 16px;
+}
+
+.panel-title {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.stack,
+.export-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.export-stack {
+  margin-top: 10px;
+}
+
+.export-stack input,
+select {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: var(--field);
+  color: var(--field-ink);
+}
+
+.field-help,
+.validation-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.field-help.success {
+  color: #047857;
+}
+
+.field-help.error {
+  color: #b91c1c;
+}
+
+:root[data-theme="dark"] .field-help.success {
+  color: #6ee7b7;
+}
+
+:root[data-theme="dark"] .field-help.error {
+  color: #fca5a5;
+}
+
+.compact-details {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--panel-raised);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.compact-details summary {
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.compact-details p {
+  margin: 8px 0 0;
+  line-height: 1.4;
+}
+
+.app-alert {
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.app-alert {
+  margin-top: 14px;
+}
+
+.app-alert.info {
+  border-color: #1d4ed8;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.app-alert.success {
+  border-color: #047857;
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.app-alert.warning {
+  border-color: #92400e;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.app-alert.error {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+:root[data-theme="dark"] .app-alert.info {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+:root[data-theme="dark"] .app-alert.success {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+:root[data-theme="dark"] .app-alert.warning {
+  background: #78350f;
+  color: #fef3c7;
+}
+
+:root[data-theme="dark"] .app-alert.error {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
+.status-pill {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.status-pill.protected {
+  border-color: #047857;
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.status-pill.blocked {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.status-pill.limited {
+  border-color: #92400e;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.status-pill.not-required {
+  border-color: #1d4ed8;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+:root[data-theme="dark"] .status-pill.protected {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+:root[data-theme="dark"] .status-pill.blocked {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
+:root[data-theme="dark"] .status-pill.limited {
+  background: #78350f;
+  color: #fef3c7;
+}
+
+:root[data-theme="dark"] .status-pill.not-required {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+.severity-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
+
+.table-wrap {
+  overflow: auto;
+  max-height: 58vh;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  font-size: 0.92rem;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: var(--panel-raised);
+  z-index: 1;
+}
+
+.badge {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.low { background: var(--low); }
+.medium { background: var(--warn); }
+.high { background: var(--danger); }
+.critical { background: var(--critical); }
+
+:root[data-theme="dark"] .badge {
+  color: #0f172a;
+}
+
+.context {
+  max-width: 440px;
+  color: var(--ink);
+}
+
+.context small,
+td small {
+  color: var(--muted);
+}
+
+.match {
+  font-weight: 800;
+  background: var(--match-bg);
+  color: var(--match-ink);
+  padding: 0 2px;
+}
+
+dialog {
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+  width: min(720px, calc(100vw - 32px));
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+dialog::backdrop {
+  background: rgb(15 23 42 / 0.45);
+}
+
+.dialog-panel {
+  padding: 20px;
+}
+
+.workflow-list {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.workflow-list li {
+  margin: 14px 0;
+}
+
+.workflow-list span {
+  display: block;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.custom-regex-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.regex-form {
+  display: grid;
+  gap: 10px;
+}
+
+.regex-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.regex-form input {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: var(--field);
+  color: var(--field-ink);
+}
+
+.regex-actions,
+.regex-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.custom-regex-report h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.custom-regex-list {
+  display: grid;
+  gap: 8px;
+}
+
+.custom-regex-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-raised);
+}
+
+.custom-regex-item.is-editing {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.custom-regex-item code {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 860px) {
+  .topbar,
+  .content-grid {
+    display: block;
+  }
+
+  .version {
+    margin-top: 12px;
+    display: inline-flex;
+  }
+
+  .top-actions {
+    margin-top: 12px;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .findings-panel {
+    margin-top: 18px;
+  }
+
+  .controls,
+  .control-group {
+    width: 100%;
+  }
+
+  .process-actions {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  button,
+  .file-button,
+  .controls label,
+  .control-group,
+  .process-button {
+    width: 100%;
+  }
+
+  .top-actions,
+  .icon-button,
+  .version {
+    width: auto;
+  }
+}
+
+</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.57/dist/zip-full.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Pension Benefit Guaranty Corporation</p>
+          <h1>PII Detection v0.4.0</h1>
+        </div>
+        <div class="top-actions">
+          <button id="themeToggle" class="icon-button theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch theme">â˜¾</button>
+          <div class="version">Static SPA</div>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="ingest-panel" aria-label="Document intake">
+          <div id="dropZone" class="drop-zone" tabindex="0">
+            <strong>Drop files here</strong>
+            <span>PDF, DOCX, XLSX, CSV, TXT, HTML, MD, JSON, XML, SQLite DB</span>
+          </div>
+          <div class="controls" aria-label="Intake actions">
+            <div class="control-group input-actions" aria-label="Input selection">
+              <label class="file-button">
+                Select files
+                <input id="fileInput" type="file" multiple />
+              </label>
+              <label class="file-button">
+                Select directory
+                <input id="dirInput" type="file" webkitdirectory directory multiple />
+              </label>
+            </div>
+            <div class="control-group setup-actions" aria-label="Workflow setup">
+              <button id="workflowBtn" class="setup-button" type="button">Workflow</button>
+              <button id="customRegexBtn" class="setup-button" type="button">Custom regex</button>
+            </div>
+            <div class="control-group process-actions" aria-label="Process files">
+              <button id="processBtn" class="process-button" type="button">Process queue</button>
+            </div>
+          </div>
+          <div class="progress-row">
+            <progress id="progress" value="0" max="100"></progress>
+            <span id="statusText">No files queued</span>
+          </div>
+          <div id="appAlert" class="app-alert info" role="status" aria-live="polite">Ready. Select files or drop them here to begin.</div>
+        </section>
+
+        <section class="summary-grid" aria-label="Processing summary">
+          <div class="metric"><span id="fileCount">0</span><label>Files</label></div>
+          <div class="metric"><span id="findingCount">0</span><label>Findings</label></div>
+          <div class="metric"><span id="highCount">0</span><label>High or Critical</label></div>
+          <div class="metric"><span id="reviewCount">0</span><label>Unresolved</label></div>
+        </section>
+
+        <section class="content-grid">
+          <aside class="panel">
+            <div class="panel-title">
+              <h2>Severity</h2>
+              <button id="clearBtn" type="button">Clear</button>
+            </div>
+            <div id="severityList" class="stack"></div>
+            <h2>Export</h2>
+            <div class="export-stack">
+              <input id="passwordInput" type="password" placeholder="Encryption password" autocomplete="new-password" />
+              <input id="passwordConfirmInput" type="password" placeholder="Confirm password" autocomplete="new-password" />
+              <p id="passwordHelp" class="field-help">Sensitive export requires a strong password.</p>
+              <div id="encryptionStatus" class="status-pill limited">Encryption status: not evaluated</div>
+              <details class="compact-details">
+                <summary>Compliance and validation</summary>
+                <p>Local processing only. Zip password protection is local protection, not PBGC approval for external dissemination.</p>
+                <p>IM 10-03 requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC, and authorization before removing PII from PBGC-controlled environments.</p>
+                <p id="validationSummary" class="validation-summary">Detector validation: pending</p>
+              </details>
+              <p id="exportDestinationHelp" class="field-help">Export downloads through the browser unless an output folder is available.</p>
+              <button id="chooseOutputBtn" type="button">Choose output directory</button>
+              <button id="exportBtn" type="button">Export reviewed output</button>
+            </div>
+          </aside>
+
+          <section class="panel findings-panel">
+            <div class="panel-title">
+              <h2>Findings</h2>
+              <select id="severityFilter" aria-label="Filter severity">
+                <option value="all">All severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>File</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Context</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="findingsBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="workflowDialog">
+      <form method="dialog" class="dialog-panel">
+        <div class="panel-title">
+          <h2>PII handling workflow</h2>
+          <button type="submit">Close</button>
+        </div>
+        <ol class="workflow-list">
+          <li><strong>Detect in context</strong><span>Extract text locally and locate direct, linkable, financial, tax, credential, and technical identifiers.</span></li>
+          <li><strong>Report findings</strong><span>Record file, type, match preview, context, confidence, and policy basis.</span></li>
+          <li><strong>Value severity</strong><span>Assign low, medium, high, or critical severity using type and context.</span></li>
+          <li><strong>Manage decisions</strong><span>Review every finding and choose retain, redact, erase, false positive, or unresolved.</span></li>
+          <li><strong>Dispose or redact</strong><span>Export a redacted package, report, and manifest for downstream modules. Sensitive packages require password protection.</span></li>
+        </ol>
+        <p class="policy-note">Policy basis: PBGC IM 05-09 Privacy Program and IM 10-03 Protecting Personally Identifiable Information. Use synthetic data for testing. Removal or external dissemination of PII requires PBGC authorization and approved transfer protection.</p>
+      </form>
+    </dialog>
+
+    <dialog id="customRegexDialog">
+      <form method="dialog" class="dialog-panel custom-regex-panel">
+        <div class="panel-title">
+          <h2>Custom regex tests</h2>
+          <button type="submit">Close</button>
+        </div>
+        <p class="policy-note">Add local, persistent regex tests for cases not covered by the built-in library. Use a short description so reviewers understand the purpose.</p>
+        <div class="regex-form">
+          <label>
+            Description
+            <input id="customRegexDescription" type="text" maxlength="120" placeholder="e.g., Agency-specific participant code" />
+          </label>
+          <label>
+            Regex
+            <input id="customRegexPattern" type="text" placeholder="e.g., \\bABC-\\d{6}\\b" />
+          </label>
+          <div class="regex-actions">
+            <button id="addCustomRegexBtn" type="button">Add regex</button>
+            <button id="cancelCustomRegexEditBtn" class="secondary hidden" type="button">Cancel edit</button>
+          </div>
+        </div>
+        <div id="customRegexStatus" class="field-help" role="status" aria-live="polite">User-defined tests are stored locally in this browser.</div>
+        <div class="custom-regex-report">
+          <h3>Saved tests</h3>
+          <div id="customRegexList" class="custom-regex-list"></div>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+const VERSION = "0.4.0";
+const FEATURE_ID = "002-detector-precision-encryption";
+const OUTPUT_DIR = "pii-output-v0.4.0";
+const CUSTOM_REGEX_DB = "pbgc-pii-detector";
+const CUSTOM_REGEX_STORE = "customRegexTests";
+const VALIDATION_CLAIM = "Password-protected archive export is enforced as a local safeguard. IM 10-03 still requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC; this browser/library path is not claimed as FIPS 140-3 validated or PBGC-approved unless independently validated and approved.";
+const POLICY_REFERENCES = [
+  "PBGC IM 05-09 Privacy Program",
+  "PBGC IM 10-03 Protecting Personally Identifiable Information",
+  "Privacy Act of 1974, 5 U.S.C. 552a",
+  "OMB M-17-12 Preparing for and Responding to a Breach of Personally Identifiable Information",
+  "NIST SP 800-53 Rev. 5 Security and Privacy Controls"
+];
+const POLICY_OBLIGATIONS = [
+  "IM 05-09: protect PII commensurate with sensitivity, criticality, and value; PII includes participant, beneficiary, employee, and contractor information.",
+  "IM 05-09 and IM 10-03: PII includes information that identifies a person alone or when combined with linked or linkable information.",
+  "IM 10-03: use synthetic data for release testing, training, and production support unless an approved policy deviation exists.",
+  "IM 10-03: collect, maintain, and disseminate PII only for a PBGC business need and only with need-to-know access.",
+  "IM 10-03: removal of PII from PBGC or contractor devices, networks, or the workplace requires Chief Privacy Officer approval for PII.",
+  "IM 10-03: electronic dissemination of PII outside PBGC must be required and use a PBGC-approved data encryption method or secure file transfer application.",
+  "IM 10-03: dispose of electronic media and paper documents containing PII when no longer needed according to PBGC records and CUI directives.",
+  "IM 05-09 and IM 10-03: suspected or confirmed breaches must be reported through PBGC breach/incident reporting processes."
+];
+
+const DISPOSITIONS = {
+  retain: "retain",
+  redact: "redact",
+  erase: "erase",
+  falsePositive: "false_positive",
+  unresolved: "unresolved"
+};
+
+const ENCRYPTION_STATUS = {
+  notRequired: "not_required",
+  protected: "protected",
+  blocked: "blocked",
+  limited: "limited"
+};
+
+const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
+
+const detectors = [
+  {
+    type: "PBGC_DIRECTIVE_REFERENCE",
+    regex: /\b(?:PBGC\s+)?IM\s+\d{2}-\d{2}\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "PBGC directive reference; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "VERSION_REFERENCE",
+    regex: /\bv\d+\.\d+\.\d+\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Version reference; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "PAGE_OR_SECTION_REFERENCE",
+    regex: /\b(?:page|section)\s+\d+(?:\.\d+)?\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Page or section reference; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "ACTUARIAL_VALUE",
+    regex: /\$[\d,]+(?:\.\d{2})?\b|\b\d+(?:\.\d+)?%\b/g,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Actuarial, dollar, or rate value; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "REGULATORY_CITATION",
+    regex: /\b\d+\s+U\.S\.C\.\s+\d+[a-z]?\b|\b\d+\s+C\.F\.R\.\s+\d+(?:\.\d+)?\b/gi,
+    severity: "low",
+    confidence: 0.2,
+    policy: "Regulatory citation; recorded as non-PII false-positive control",
+    falsePositive: true
+  },
+  {
+    type: "SSN",
+    regex: /\b(?!000|666|9\d{2})\d{3}[- ]?\d{2}[- ]?\d{4}\b/g,
+    severity: "critical",
+    confidence: 0.95,
+    policy: "Direct identifier under PBGC IM 05-09 and IM 10-03"
+  },
+  {
+    type: "EIN_OR_ROUTING",
+    regex: /\b\d{2}-\d{7}\b|\b\d{9}\b/g,
+    severity: "high",
+    confidence: 0.7,
+    policy: "Financial or organizational identifier requiring contextual review"
+  },
+  {
+    type: "BANK_ACCOUNT_CONTEXT",
+    regex: /\b(?:account|acct|bank account|payment account)[:\s#-]*\d{6,17}\b/gi,
+    severity: "critical",
+    confidence: 0.88,
+    policy: "Bank or payment data requiring strong safeguards"
+  },
+  {
+    type: "EMAIL",
+    regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
+    severity: "medium",
+    confidence: 0.9,
+    policy: "Linkable identifier under PBGC privacy policy"
+  },
+  {
+    type: "PHONE",
+    regex: /\b(?:\+?1[-.\s]*)?\(?[2-9]\d{2}\)?[-.\s]*\d{3}[-.\s]*\d{4}\b/g,
+    severity: "medium",
+    confidence: 0.85,
+    policy: "Linkable contact identifier"
+  },
+  {
+    type: "CREDIT_CARD",
+    regex: /\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\b/g,
+    severity: "critical",
+    confidence: 0.9,
+    policy: "Financial account data requiring strong safeguards"
+  },
+  {
+    type: "DOB",
+    regex: /\b(?:DOB|date of birth|birth date)[:\s-]*(?:0?[1-9]|1[0-2])[/-](?:0?[1-9]|[12]\d|3[01])[/-](?:19|20)\d{2}\b/gi,
+    severity: "high",
+    confidence: 0.8,
+    policy: "Directly linkable personal attribute"
+  },
+  {
+    type: "ADDRESS_CONTEXT",
+    regex: /\b\d{1,6}\s+[A-Za-z0-9.' -]+\s+(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Court|Ct)\b/gi,
+    severity: "medium",
+    confidence: 0.72,
+    policy: "Linkable location information"
+  },
+  {
+    type: "AWS_ACCESS_KEY",
+    regex: /\bAKIA[0-9A-Z]{16}\b/g,
+    severity: "critical",
+    confidence: 0.98,
+    policy: "Credential or technical secret"
+  },
+  {
+    type: "GOOGLE_API_KEY",
+    regex: /\bAIza[0-9A-Za-z_-]{35}\b/g,
+    severity: "critical",
+    confidence: 0.95,
+    policy: "Credential or technical secret"
+  },
+  {
+    type: "JWT",
+    regex: /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g,
+    severity: "critical",
+    confidence: 0.92,
+    policy: "Credential or session token"
+  },
+  {
+    type: "IP_ADDRESS",
+    regex: /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/g,
+    severity: "low",
+    confidence: 0.75,
+    policy: "Technical identifier; severity may increase with other context"
+  }
+];
+
+const piiPositiveTerms = [
+  "ssn",
+  "social security",
+  "taxpayer",
+  "tin",
+  "participant",
+  "beneficiary",
+  "payee",
+  "person",
+  "dob",
+  "date of birth",
+  "birth date",
+  "phone",
+  "email",
+  "address",
+  "bank",
+  "routing",
+  "account",
+  "benefit"
+];
+
+const piiNegativeTerms = [
+  "plan",
+  "policy",
+  "directive",
+  "im ",
+  "version",
+  "release",
+  "page",
+  "section",
+  "table",
+  "schedule",
+  "form",
+  "citation",
+  "usc",
+  "cfr",
+  "actuarial",
+  "rate",
+  "liability",
+  "dollar",
+  "amount"
+];
+
+const validationControls = [
+  { id: "FP-001", category: "directive", sampleText: "PBGC IM 10-03 is referenced for this workflow.", expected: "not_high_confidence" },
+  { id: "FP-002", category: "version", sampleText: "The current release is v0.4.0.", expected: "not_high_confidence" },
+  { id: "FP-003", category: "page", sampleText: "See page 12 for the policy summary.", expected: "not_high_confidence" },
+  { id: "FP-004", category: "section", sampleText: "Review section 5.2 before export.", expected: "not_high_confidence" },
+  { id: "FP-005", category: "date", sampleText: "The report was prepared on 05/02/2026.", expected: "not_high_confidence" },
+  { id: "FP-006", category: "dollar", sampleText: "The plan liability is $1,250,000.", expected: "not_high_confidence" },
+  { id: "FP-007", category: "rate", sampleText: "The actuarial rate is 5.75%.", expected: "not_high_confidence" },
+  { id: "FP-008", category: "plan-code", sampleText: "Plan 123-45-6789 requires actuarial review.", expected: "not_high_confidence" },
+  { id: "FP-009", category: "citation", sampleText: "5 U.S.C. 552a applies to Privacy Act records.", expected: "not_high_confidence" },
+  { id: "TP-001", category: "ssn", sampleText: "SSN 123-45-6789 belongs to Jane Example.", expected: "detected" },
+  { id: "TP-002", category: "taxpayer", sampleText: "Taxpayer ID 12-3456789 is associated with Jane Example.", expected: "detected" },
+  { id: "TP-003", category: "participant", sampleText: "Participant Jane Example, SSN 123-45-6789, has a benefit record.", expected: "detected" },
+  { id: "TP-004", category: "address", sampleText: "Jane Example lives at 100 Main Street.", expected: "detected" },
+  { id: "TP-005", category: "phone", sampleText: "Jane Example phone: 202-555-0199.", expected: "detected" },
+  { id: "TP-006", category: "email", sampleText: "Jane Example email: jane.example@example.gov.", expected: "detected" },
+  { id: "TP-007", category: "dob", sampleText: "DOB 01/15/1960 for Jane Example.", expected: "detected" },
+  { id: "TP-008", category: "payment", sampleText: "Jane Example bank routing 021000021 and account 123456789012.", expected: "detected" },
+  { id: "TP-009", category: "benefit", sampleText: "Jane Example receives monthly benefit $1,234.56 tied to SSN 123-45-6789.", expected: "detected" }
+];
+
+const allowedExtensions = new Set(["txt", "md", "html", "htm", "pdf", "docx", "xlsx", "csv", "tsv", "json", "xml", "db", "sqlite"]);
+
+const state = {
+  files: [],
+  documents: [],
+  findings: [],
+  outputHandle: null,
+  exportMeta: defaultExportMeta(),
+  detectorValidation: null,
+  customRegexTests: [],
+  editingCustomRegexId: null
+};
+
+const $ = (id) => document.getElementById(id);
+
+const els = {
+  themeToggle: $("themeToggle"),
+  dropZone: $("dropZone"),
+  fileInput: $("fileInput"),
+  dirInput: $("dirInput"),
+  processBtn: $("processBtn"),
+  workflowBtn: $("workflowBtn"),
+  workflowDialog: $("workflowDialog"),
+  customRegexBtn: $("customRegexBtn"),
+  customRegexDialog: $("customRegexDialog"),
+  customRegexDescription: $("customRegexDescription"),
+  customRegexPattern: $("customRegexPattern"),
+  addCustomRegexBtn: $("addCustomRegexBtn"),
+  cancelCustomRegexEditBtn: $("cancelCustomRegexEditBtn"),
+  customRegexStatus: $("customRegexStatus"),
+  customRegexList: $("customRegexList"),
+  progress: $("progress"),
+  statusText: $("statusText"),
+  appAlert: $("appAlert"),
+  fileCount: $("fileCount"),
+  findingCount: $("findingCount"),
+  highCount: $("highCount"),
+  reviewCount: $("reviewCount"),
+  severityList: $("severityList"),
+  findingsBody: $("findingsBody"),
+  severityFilter: $("severityFilter"),
+  clearBtn: $("clearBtn"),
+  exportBtn: $("exportBtn"),
+  chooseOutputBtn: $("chooseOutputBtn"),
+  exportDestinationHelp: $("exportDestinationHelp"),
+  passwordInput: $("passwordInput"),
+  passwordConfirmInput: $("passwordConfirmInput"),
+  encryptionStatus: $("encryptionStatus"),
+  validationSummary: $("validationSummary")
+};
+
+initTheme();
+initializeApp();
+
+if (window.pdfjsLib) {
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+function defaultExportMeta() {
+  return {
+    archiveName: `${OUTPUT_DIR}.zip`,
+    passwordRequired: false,
+    passwordAccepted: false,
+    passwordProtected: false,
+    exportBlocked: false,
+    blockedReason: "",
+    encryptionStatus: ENCRYPTION_STATUS.notRequired,
+    validationClaim: VALIDATION_CLAIM,
+    limitations: []
+  };
+}
+
+async function initializeApp() {
+  try {
+    state.customRegexTests = await loadCustomRegexTests();
+    updateCustomRegexStatus();
+    renderCustomRegexList();
+  } catch (error) {
+    updateCustomRegexStatus(`Custom regex storage unavailable: ${error.message}`, "error");
+  }
+  updateExportDestinationAvailability();
+  state.detectorValidation = runDetectorValidation();
+  renderAll();
+}
+
+function normalizeFiles(fileList) {
+  return Array.from(fileList);
+}
+
+function queueFiles(fileList) {
+  const incoming = normalizeFiles(fileList);
+  const known = new Set(state.files.map((file) => file.webkitRelativePath || file.name));
+  for (const file of incoming) {
+    const key = file.webkitRelativePath || file.name;
+    if (!known.has(key)) state.files.push(file);
+  }
+  updateStatus(`${state.files.length} supported file(s) queued`);
+  updateAlert(`${state.files.length} supported file(s) queued. Click Process queue to scan them.`, "info");
+  renderSummary();
+}
+
+function updateStatus(message) {
+  els.statusText.textContent = message;
+}
+
+function updateAlert(message, tone = "info") {
+  els.appAlert.textContent = message;
+  els.appAlert.className = `app-alert ${tone}`;
+}
+
+function showActionError(error) {
+  const message = error?.message || String(error);
+  updateStatus(`Action failed: ${message}`);
+  updateAlert(`Action failed: ${message}`, "error");
+  console.error(error);
+}
+
+function newId(prefix = "id") {
+  if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function openCustomRegexDb() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      reject(new Error("IndexedDB is not available in this browser"));
+      return;
+    }
+    const request = window.indexedDB.open(CUSTOM_REGEX_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(CUSTOM_REGEX_STORE)) {
+        const store = db.createObjectStore(CUSTOM_REGEX_STORE, { keyPath: "id" });
+        store.createIndex("createdAt", "createdAt");
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("IndexedDB open failed"));
+  });
+}
+
+function idbRequest(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("IndexedDB request failed"));
+  });
+}
+
+async function loadCustomRegexTests() {
+  if (!window.indexedDB) return [];
+  const db = await openCustomRegexDb();
+  try {
+    const tx = db.transaction(CUSTOM_REGEX_STORE, "readonly");
+    const items = await idbRequest(tx.objectStore(CUSTOM_REGEX_STORE).getAll());
+    return items.sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+  } finally {
+    db.close();
+  }
+}
+
+async function saveCustomRegexTest(test) {
+  const db = await openCustomRegexDb();
+  try {
+    const tx = db.transaction(CUSTOM_REGEX_STORE, "readwrite");
+    await idbRequest(tx.objectStore(CUSTOM_REGEX_STORE).put(test));
+  } finally {
+    db.close();
+  }
+}
+
+async function deleteCustomRegexTest(id) {
+  const db = await openCustomRegexDb();
+  try {
+    const tx = db.transaction(CUSTOM_REGEX_STORE, "readwrite");
+    await idbRequest(tx.objectStore(CUSTOM_REGEX_STORE).delete(id));
+  } finally {
+    db.close();
+  }
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("pbgc-pii-theme");
+  const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const initialTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
+  setTheme(initialTheme);
+  els.themeToggle.addEventListener("click", () => {
+    const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    localStorage.setItem("pbgc-pii-theme", nextTheme);
+  });
+}
+
+function setTheme(theme) {
+  const normalized = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = normalized;
+  els.themeToggle.textContent = normalized === "dark" ? "â˜€" : "â˜¾";
+  els.themeToggle.setAttribute("aria-label", normalized === "dark" ? "Switch to light theme" : "Switch to dark theme");
+  els.themeToggle.title = normalized === "dark" ? "Switch to light theme" : "Switch to dark theme";
+}
+
+async function readFile(file) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (!allowedExtensions.has(ext)) {
+    return {
+      text: "",
+      extractedTextAvailable: false,
+      limitations: [`Unsupported file extension .${ext || "unknown"} recorded and skipped.`]
+    };
+  }
+  if (["txt", "md", "html", "htm", "csv", "tsv", "json", "xml"].includes(ext)) {
+    return {
+      text: await file.text(),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (ext === "pdf") {
+    return {
+      text: await readPdf(file),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (ext === "docx") {
+    return {
+      text: await readDocx(file),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (ext === "xlsx") {
+    return {
+      text: await readXlsx(file),
+      extractedTextAvailable: true,
+      limitations: []
+    };
+  }
+  if (["db", "sqlite"].includes(ext)) {
+    return {
+      text: "",
+      extractedTextAvailable: false,
+      limitations: ["DB/SQLite extraction is browser-limited in this static release unless a browser-safe extractor is added."]
+    };
+  }
+  return {
+    text: "",
+    extractedTextAvailable: false,
+    limitations: ["No extraction route is available for this file."]
+  };
+}
+
+async function readPdf(file) {
+  if (!window.pdfjsLib) throw new Error("pdf.js library not available");
+  const data = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({ data }).promise;
+  const pages = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    pages.push(content.items.map((item) => item.str).join(" "));
+  }
+  return pages.join("\n\n");
+}
+
+async function readDocx(file) {
+  if (!window.mammoth) throw new Error("mammoth library not available");
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await window.mammoth.extractRawText({ arrayBuffer });
+  return result.value || "";
+}
+
+async function readXlsx(file) {
+  if (!window.XLSX) throw new Error("xlsx library not available");
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = window.XLSX.read(arrayBuffer);
+  return workbook.SheetNames.map((sheetName) => {
+    const sheet = workbook.Sheets[sheetName];
+    return `Sheet: ${sheetName}\n${window.XLSX.utils.sheet_to_csv(sheet)}`;
+  }).join("\n\n");
+}
+
+function detectInDocument(doc, detectorList = activeDetectors()) {
+  const findings = [];
+  const seen = new Set();
+  for (const detector of detectorList) {
+    detector.regex.lastIndex = 0;
+    for (const match of doc.text.matchAll(detector.regex)) {
+      const value = match[0];
+      const index = match.index || 0;
+      const key = `${detector.type}:${index}:${value}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      const context = contextFor(doc.text, index, value.length);
+      const analysis = analyzeCandidate(detector, value, context);
+
+      findings.push({
+        id: newId("finding"),
+        file: doc.path,
+        type: analysis.type,
+        match: value,
+        masked: maskValue(value),
+        context,
+        contextSignals: analysis.contextSignals,
+        severity: analysis.severity,
+        confidence: analysis.confidence,
+        confidenceReason: analysis.confidenceReason,
+        policy: analysis.policy,
+        action: analysis.action,
+        decisionSource: "detector",
+        decidedAt: "",
+        location: { offset: index }
+      });
+    }
+  }
+  return findings.sort((a, b) => severityRank[b.severity] - severityRank[a.severity]);
+}
+
+function activeDetectors() {
+  return [...detectors, ...state.customRegexTests.map(customRegexToDetector)];
+}
+
+function customRegexToDetector(test) {
+  return {
+    type: `CUSTOM_${safeDetectorType(test.description)}`,
+    regex: new RegExp(test.pattern, normalizeRegexFlags(test.flags)),
+    severity: "medium",
+    confidence: 0.65,
+    policy: `User-defined regex: ${test.description}`,
+    custom: true,
+    description: test.description
+  };
+}
+
+function normalizeRegexFlags(flags = "gi") {
+  const accepted = new Set(String(flags || "gi").replace(/[^gimsuy]/g, "").split(""));
+  accepted.add("g");
+  return Array.from(accepted).join("");
+}
+
+function safeDetectorType(value) {
+  return String(value || "REGEX")
+    .replace(/[^A-Za-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toUpperCase()
+    .slice(0, 40) || "REGEX";
+}
+
+function analyzeCandidate(detector, value, context) {
+  const contextSignals = extractContextSignals(context);
+  const positive = contextSignals.positive.length;
+  const negative = contextSignals.negative.length;
+  let type = detector.type;
+  let severity = detector.severity;
+  let confidence = detector.confidence;
+  let policy = detector.policy;
+  let confidenceReason = "Base detector match with no contextual adjustment.";
+  let action = defaultActionFor(severity);
+  let suppressed = false;
+
+  if (detector.falsePositive) {
+    severity = "low";
+    confidence = 0.2;
+    confidenceReason = "Recognized as PBGC document, policy, actuarial, or regulatory text rather than PII.";
+    action = DISPOSITIONS.falsePositive;
+  } else if (detector.custom) {
+    severity = "medium";
+    confidence = 0.65;
+    confidenceReason = `Matched user-defined regex test: ${detector.description}.`;
+    action = DISPOSITIONS.unresolved;
+  } else if (detector.type === "SSN" && negative > 0 && positive === 0) {
+    type = "NUMERIC_PATTERN_AMBIGUOUS";
+    severity = "low";
+    confidence = 0.35;
+    policy = "Pattern resembles PII but nearby PBGC document-control context supports false-positive treatment.";
+    confidenceReason = `Downgraded because nearby non-PII context was found: ${contextSignals.negative.join(", ")}.`;
+    action = DISPOSITIONS.falsePositive;
+  } else if (detector.type === "EIN_OR_ROUTING" && negative > 0 && positive === 0) {
+    type = "NUMERIC_PATTERN_AMBIGUOUS";
+    severity = "low";
+    confidence = 0.3;
+    policy = "Numeric pattern appears in policy, plan, actuarial, or document-control context.";
+    confidenceReason = `Downgraded because nearby non-PII context was found: ${contextSignals.negative.join(", ")}.`;
+    action = DISPOSITIONS.falsePositive;
+  } else if (detector.type === "EIN_OR_ROUTING" && positive > 0) {
+    severity = "high";
+    confidence = Math.max(confidence, 0.86);
+    confidenceReason = `Elevated because nearby PII context was found: ${contextSignals.positive.join(", ")}.`;
+    action = DISPOSITIONS.redact;
+  } else if (detector.type === "PHONE" && negative > 0 && positive === 0) {
+    severity = "low";
+    confidence = 0.45;
+    confidenceReason = `Downgraded because nearby non-PII context was found: ${contextSignals.negative.join(", ")}.`;
+    action = DISPOSITIONS.unresolved;
+  } else if (positive > 0 && severityRank[severity] < severityRank.high) {
+    severity = "high";
+    confidence = Math.min(0.95, confidence + 0.1);
+    confidenceReason = `Elevated because nearby PII context was found: ${contextSignals.positive.join(", ")}.`;
+    action = DISPOSITIONS.redact;
+  } else if (negative > 0 && positive === 0 && detector.type === "IP_ADDRESS") {
+    severity = "low";
+    confidence = 0.25;
+    confidenceReason = `Downgraded because nearby non-PII context was found: ${contextSignals.negative.join(", ")}.`;
+    action = DISPOSITIONS.falsePositive;
+  }
+
+  return {
+    type,
+    severity,
+    confidence,
+    policy,
+    confidenceReason,
+    contextSignals,
+    action,
+    suppressed
+  };
+}
+
+function extractContextSignals(context) {
+  const normalized = ` ${context.toLowerCase().replace(/\s+/g, " ")} `;
+  return {
+    positive: piiPositiveTerms.filter((term) => normalized.includes(term)),
+    negative: piiNegativeTerms.filter((term) => normalized.includes(term))
+  };
+}
+
+function defaultActionFor(severity) {
+  return severity === "critical" || severity === "high" ? DISPOSITIONS.redact : DISPOSITIONS.unresolved;
+}
+
+function contextFor(text, index, length) {
+  const start = Math.max(0, index - 80);
+  const end = Math.min(text.length, index + length + 80);
+  return `${text.slice(start, index)}[[MATCH]]${text.slice(index, index + length)}[[/MATCH]]${text.slice(index + length, end)}`.replace(/\s+/g, " ").trim();
+}
+
+function maskValue(value) {
+  if (value.length <= 4) return "****";
+  return `${"*".repeat(Math.max(4, value.length - 4))}${value.slice(-4)}`;
+}
+
+function redactText(text, findings) {
+  let output = text;
+  const actionableFindings = findings
+    .filter((finding) => [DISPOSITIONS.redact, DISPOSITIONS.erase].includes(normalizeAction(finding.action)))
+    .filter((finding) => finding.match)
+    .sort((a, b) => b.match.length - a.match.length);
+  for (const finding of actionableFindings) {
+    output = output.split(finding.match).join(redactionToken(finding));
+  }
+  return output;
+}
+
+function redactionToken(finding) {
+  return normalizeAction(finding.action) === DISPOSITIONS.erase ? "[ERASED]" : "[REDACTED]";
+}
+
+async function processQueue() {
+  if (!state.files.length) {
+    updateStatus("Select files or a directory before processing");
+    updateAlert("No files are queued. Select files, select a directory, or drop files into the intake area first.", "warning");
+    return;
+  }
+
+  state.documents = [];
+  state.findings = [];
+  state.exportMeta = defaultExportMeta();
+  els.progress.value = 0;
+  renderEncryptionStatus();
+
+  for (let index = 0; index < state.files.length; index += 1) {
+    const file = state.files[index];
+    const path = file.webkitRelativePath || file.name;
+    updateStatus(`Processing ${path}`);
+    try {
+      const extracted = await readFile(file);
+      const doc = {
+        path,
+        name: file.name,
+        type: file.type || "unknown",
+        size: file.size,
+        text: extracted.text,
+        extractedTextAvailable: extracted.extractedTextAvailable,
+        limitations: extracted.limitations
+      };
+      state.documents.push(doc);
+      if (extracted.limitations.length) {
+        state.findings.push(createLimitationFinding(path, extracted.limitations.join(" ")));
+      }
+      state.findings.push(...detectInDocument(doc));
+    } catch (error) {
+      state.findings.push(createLimitationFinding(path, `File could not be read by available browser libraries: ${error.message}`));
+    }
+    els.progress.value = ((index + 1) / state.files.length) * 100;
+  }
+
+  migrateActions();
+  updateStatus(`Processed ${state.files.length} file(s) with ${state.findings.length} finding(s)`);
+  updateAlert(`Processing complete: ${state.files.length} file(s), ${state.findings.length} finding(s). Review findings, then export with a password if sensitive output exists.`, "success");
+  renderAll();
+}
+
+function createLimitationFinding(file, message) {
+  return {
+    id: newId("limitation"),
+    file,
+    type: "PROCESSING_LIMITATION",
+    match: message,
+    masked: message,
+    context: message,
+    contextSignals: { positive: [], negative: [] },
+    severity: "medium",
+    confidence: 1,
+    confidenceReason: "Operational limitation, not a PII pattern match.",
+    policy: "Operational limitation recorded for PBGC IM 05-09 and IM 10-03 auditability",
+    action: DISPOSITIONS.unresolved,
+    decisionSource: "system",
+    decidedAt: "",
+    location: { unavailable: true }
+  };
+}
+
+function migrateActions() {
+  for (const finding of state.findings) {
+    finding.action = normalizeAction(finding.action);
+  }
+}
+
+function normalizeAction(action) {
+  if (action === "needs_review") return DISPOSITIONS.unresolved;
+  if (Object.values(DISPOSITIONS).includes(action)) return action;
+  return DISPOSITIONS.unresolved;
+}
+
+async function addCustomRegexTest() {
+  const description = els.customRegexDescription.value.trim();
+  const pattern = els.customRegexPattern.value.trim();
+  if (!description || !pattern) {
+    updateCustomRegexStatus("Enter both a short description and a regex pattern.", "error");
+    return;
+  }
+  try {
+    new RegExp(pattern, normalizeRegexFlags());
+  } catch (error) {
+    updateCustomRegexStatus(`Regex syntax error: ${error.message}`, "error");
+    return;
+  }
+
+  const existing = state.editingCustomRegexId
+    ? state.customRegexTests.find((item) => item.id === state.editingCustomRegexId)
+    : null;
+  const test = {
+    id: existing?.id || newId("regex"),
+    description,
+    pattern,
+    flags: existing?.flags || "gi",
+    createdAt: existing?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  await saveCustomRegexTest(test);
+  state.customRegexTests = await loadCustomRegexTests();
+  resetCustomRegexForm();
+  renderCustomRegexList();
+  updateCustomRegexStatus(existing ? "Custom regex test updated." : "Custom regex test saved.", "success");
+  state.detectorValidation = runDetectorValidation();
+  renderValidationSummary();
+}
+
+async function removeCustomRegexTest(id) {
+  await deleteCustomRegexTest(id);
+  state.customRegexTests = await loadCustomRegexTests();
+  if (state.editingCustomRegexId === id) resetCustomRegexForm();
+  renderCustomRegexList();
+  updateCustomRegexStatus("Custom regex test removed.", "success");
+  state.detectorValidation = runDetectorValidation();
+  renderValidationSummary();
+}
+
+function editCustomRegexTest(id) {
+  const test = state.customRegexTests.find((item) => item.id === id);
+  if (!test) {
+    updateCustomRegexStatus("That custom regex test is no longer available.", "error");
+    return;
+  }
+  state.editingCustomRegexId = id;
+  els.customRegexDescription.value = test.description;
+  els.customRegexPattern.value = test.pattern;
+  els.addCustomRegexBtn.textContent = "Save changes";
+  els.cancelCustomRegexEditBtn.classList.remove("hidden");
+  renderCustomRegexList();
+  updateCustomRegexStatus("Editing selected custom regex test.", "info");
+}
+
+function resetCustomRegexForm() {
+  state.editingCustomRegexId = null;
+  els.customRegexDescription.value = "";
+  els.customRegexPattern.value = "";
+  els.addCustomRegexBtn.textContent = "Add regex";
+  els.cancelCustomRegexEditBtn.classList.add("hidden");
+}
+
+function updateCustomRegexStatus(message = "", tone = "") {
+  if (!els.customRegexStatus) return;
+  els.customRegexStatus.textContent = message || `${state.customRegexTests.length} saved user-defined regex test(s).`;
+  els.customRegexStatus.className = `field-help ${tone}`.trim();
+}
+
+function renderCustomRegexList() {
+  if (!els.customRegexList) return;
+  if (!state.customRegexTests.length) {
+    els.customRegexList.innerHTML = '<p class="field-help">No user-defined regex tests saved.</p>';
+    return;
+  }
+  els.customRegexList.innerHTML = state.customRegexTests.map((test) => `
+    <div class="custom-regex-item ${state.editingCustomRegexId === test.id ? "is-editing" : ""}">
+      <div>
+        <strong>${escapeHtml(test.description)}</strong>
+        <code>${escapeHtml(test.pattern)}</code>
+      </div>
+      <div class="regex-item-actions">
+        <button type="button" data-custom-regex-edit="${escapeHtml(test.id)}">Edit</button>
+        <button class="danger" type="button" data-custom-regex-delete="${escapeHtml(test.id)}">Delete</button>
+      </div>
+    </div>
+  `).join("");
+  els.customRegexList.querySelectorAll("[data-custom-regex-edit]").forEach((button) => {
+    button.addEventListener("click", () => editCustomRegexTest(button.dataset.customRegexEdit));
+  });
+  els.customRegexList.querySelectorAll("[data-custom-regex-delete]").forEach((button) => {
+    button.addEventListener("click", () => removeCustomRegexTest(button.dataset.customRegexDelete).catch(showActionError));
+  });
+}
+
+function renderAll() {
+  renderSummary();
+  renderSeverity();
+  renderFindings();
+  renderEncryptionStatus();
+  renderValidationSummary();
+}
+
+function renderSummary() {
+  els.fileCount.textContent = String(state.files.length);
+  els.findingCount.textContent = String(state.findings.length);
+  els.highCount.textContent = String(state.findings.filter((f) => ["high", "critical"].includes(f.severity)).length);
+  els.reviewCount.textContent = String(state.findings.filter((f) => normalizeAction(f.action) === DISPOSITIONS.unresolved).length);
+}
+
+function renderSeverity() {
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+  for (const finding of state.findings) counts[finding.severity] += 1;
+  els.severityList.innerHTML = Object.entries(counts)
+    .map(([severity, count]) => `<div class="severity-row"><span class="badge ${severity}">${severity}</span><strong>${count}</strong></div>`)
+    .join("");
+}
+
+function renderFindings() {
+  const filter = els.severityFilter.value;
+  const rows = state.findings
+    .filter((finding) => filter === "all" || finding.severity === filter)
+    .map((finding) => {
+      const context = escapeHtml(finding.context)
+        .replace("[[MATCH]]", '<span class="match">')
+        .replace("[[/MATCH]]", "</span>");
+      const reason = finding.confidenceReason || "No confidence explanation available.";
+      return `
+        <tr>
+          <td>${escapeHtml(finding.file)}</td>
+          <td>${escapeHtml(finding.type)}<br><small>${Math.round(finding.confidence * 100)}% confidence</small></td>
+          <td><span class="badge ${finding.severity}">${finding.severity}</span></td>
+          <td class="context">${context}<br><small>${escapeHtml(reason)}</small><br><small>${escapeHtml(finding.policy)}</small></td>
+          <td>
+            <select data-action="${finding.id}" aria-label="Action for ${escapeHtml(finding.type)}">
+              ${actionOption(DISPOSITIONS.unresolved, "Unresolved", finding.action)}
+              ${actionOption(DISPOSITIONS.retain, "Retain", finding.action)}
+              ${actionOption(DISPOSITIONS.redact, "Redact", finding.action)}
+              ${actionOption(DISPOSITIONS.erase, "Erase", finding.action)}
+              ${actionOption(DISPOSITIONS.falsePositive, "False positive", finding.action)}
+            </select>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  els.findingsBody.innerHTML = rows || '<tr><td colspan="5">No findings to display</td></tr>';
+  els.findingsBody.querySelectorAll("[data-action]").forEach((select) => {
+    select.addEventListener("change", (event) => {
+      const finding = state.findings.find((item) => item.id === event.target.dataset.action);
+      if (finding) {
+        const nextAction = normalizeAction(event.target.value);
+        if ([DISPOSITIONS.redact, DISPOSITIONS.erase].includes(nextAction) && !confirmDestructiveAction(finding, nextAction)) {
+          event.target.value = finding.action;
+          return;
+        }
+        finding.action = nextAction;
+        finding.decisionSource = "user";
+        finding.decidedAt = new Date().toISOString();
+      }
+      state.exportMeta = defaultExportMeta();
+      renderSummary();
+      renderEncryptionStatus();
+    });
+  });
+}
+
+function confirmDestructiveAction(finding, action) {
+  const verb = action === DISPOSITIONS.erase ? "erase" : "redact";
+  return window.confirm(`Confirm ${verb} for ${finding.type} in ${finding.file}. Exported OCR/LLM-ready text will keep surrounding words intact and replace only the sensitive value with [REDACTED] or [ERASED].`);
+}
+
+function actionOption(value, label, current) {
+  return `<option value="${value}" ${value === normalizeAction(current) ? "selected" : ""}>${label}</option>`;
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function reportJson() {
+  const manifestData = manifest();
+  return {
+    tool: "PBGC PII Detection",
+    version: VERSION,
+    feature: FEATURE_ID,
+    generatedAt: new Date().toISOString(),
+    policyReferences: POLICY_REFERENCES,
+    summary: summaryData(),
+    encryption: encryptionRecord(),
+    detectorValidation: state.detectorValidation,
+    findings: state.findings.map((finding) => ({
+      ...finding,
+      action: normalizeAction(finding.action),
+      falsePositive: normalizeAction(finding.action) === DISPOSITIONS.falsePositive,
+      match: normalizeAction(finding.action) === DISPOSITIONS.retain ? finding.match : finding.masked
+    })),
+    manifest: manifestData
+  };
+}
+
+function reportCsv() {
+  const header = ["file", "type", "severity", "confidence", "confidenceReason", "action", "masked", "policy", "context", "encryptionStatus"];
+  const rows = state.findings.map((finding) => [
+    finding.file,
+    finding.type,
+    finding.severity,
+    finding.confidence,
+    finding.confidenceReason,
+    normalizeAction(finding.action),
+    finding.masked,
+    finding.policy,
+    finding.context.replace("[[MATCH]]", "").replace("[[/MATCH]]", ""),
+    state.exportMeta.encryptionStatus
+  ]);
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function csvCell(value) {
+  return `"${String(value || "").replace(/"/g, '""')}"`;
+}
+
+function reportHtml() {
+  const rows = state.findings.map((finding) => `
+    <tr>
+      <td>${escapeHtml(finding.file)}</td>
+      <td>${escapeHtml(finding.type)}</td>
+      <td>${escapeHtml(finding.severity)}</td>
+      <td>${escapeHtml(normalizeAction(finding.action))}</td>
+      <td>${escapeHtml(finding.masked)}</td>
+      <td>${escapeHtml(finding.confidenceReason)}</td>
+      <td>${escapeHtml(finding.policy)}</td>
+    </tr>
+  `).join("");
+  const encryption = encryptionRecord();
+  return `<!doctype html><html><head><meta charset="utf-8"><title>PII Report</title></head><body>
+    <h1>PBGC PII Detection Report v${VERSION}</h1>
+    <p>Feature: ${escapeHtml(FEATURE_ID)}</p>
+    <p>Generated ${new Date().toISOString()}</p>
+    <h2>Compliance Evidence</h2>
+    <p>Policy references: ${POLICY_REFERENCES.map(escapeHtml).join("; ")}</p>
+    <ul>${POLICY_OBLIGATIONS.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    <p>Detector validation: false-positive pass rate ${formatRate(state.detectorValidation.falsePositivePassRate)}, true-positive pass rate ${formatRate(state.detectorValidation.truePositivePassRate)}.</p>
+    <p>User-defined regex tests active: ${state.customRegexTests.length}.</p>
+    <h2>Encryption Summary</h2>
+    <p>Status: ${escapeHtml(encryption.encryptionStatus)}. Password required: ${encryption.passwordRequired ? "yes" : "no"}. Password protected: ${encryption.passwordProtected ? "yes" : "no"}.</p>
+    <p>${escapeHtml(encryption.validationClaim)}</p>
+    <table border="1" cellspacing="0" cellpadding="6">
+      <thead><tr><th>File</th><th>Type</th><th>Severity</th><th>Action</th><th>Masked</th><th>Confidence Reason</th><th>Policy</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </body></html>`;
+}
+
+function formatRate(value) {
+  return typeof value === "number" ? `${Math.round(value * 100)}%` : "not available";
+}
+
+function summaryData() {
+  return {
+    files: state.files.length,
+    findings: state.findings.length,
+    confirmedOrSuspectedPii: state.findings.filter(isSensitiveFinding).length,
+    unresolved: state.findings.filter((f) => normalizeAction(f.action) === DISPOSITIONS.unresolved).length,
+    falsePositives: state.findings.filter((f) => normalizeAction(f.action) === DISPOSITIONS.falsePositive).length,
+    highOrCritical: state.findings.filter((f) => ["high", "critical"].includes(f.severity)).length
+  };
+}
+
+function manifest() {
+  return {
+    tool: "PBGC PII Detection",
+    version: VERSION,
+    feature: FEATURE_ID,
+    generatedAt: new Date().toISOString(),
+    outputDirectory: OUTPUT_DIR,
+    toolVersion: VERSION,
+    createdAt: new Date().toISOString(),
+    policyReferences: POLICY_REFERENCES,
+    policyObligations: POLICY_OBLIGATIONS,
+    summary: summaryData(),
+    sourceFiles: state.files.map((file) => ({
+      name: file.name,
+      path: file.webkitRelativePath || file.name,
+      size: file.size,
+      type: file.type || "unknown"
+    })),
+    customRegexTests: state.customRegexTests.map(({ id, description, pattern, createdAt, updatedAt }) => ({
+      id,
+      description,
+      pattern,
+      createdAt,
+      updatedAt
+    })),
+    findings: state.findings.map((finding) => ({
+      id: finding.id,
+      file: finding.file,
+      type: finding.type,
+      masked: finding.masked,
+      context: finding.context,
+      contextSignals: finding.contextSignals,
+      severity: finding.severity,
+      confidence: finding.confidence,
+      confidenceReason: finding.confidenceReason,
+      policy: finding.policy,
+      action: normalizeAction(finding.action),
+      decidedAt: finding.decidedAt || "",
+      decisionSource: finding.decisionSource || "unknown"
+    })),
+    outputs: [
+      "pii-findings.json",
+      "pii-findings.csv",
+      "pii-findings.html",
+      "manifest.json",
+      "redacted-text/*.txt with semantic placeholders that preserve surrounding text for OCR/LLM review",
+      "redacted-pdf/*.pdf with semantic placeholders where browser PDF generation is available"
+    ],
+    archive: {
+      name: state.exportMeta.archiveName,
+      passwordProtected: state.exportMeta.passwordProtected,
+      limitations: state.exportMeta.limitations
+    },
+    encryption: encryptionRecord(),
+    detectorValidation: state.detectorValidation,
+    limitations: limitationList()
+  };
+}
+
+function limitationList() {
+  return [
+    "Browser file APIs require user selection for input and output locations.",
+    "Password-protected zip export is local protection only; IM 10-03 requires PBGC-approved encryption or secure file transfer for electronic dissemination outside PBGC.",
+    "The app cannot grant CPO approval for removal of PII from PBGC devices, networks, contractor environments, or the workplace.",
+    "Redaction/export actions do not replace PBGC records management, CUI disposal, or breach reporting procedures.",
+    "Redacted outputs preserve non-PII text for OCR/LLM analysis and replace sensitive values with neutral placeholders: [REDACTED] or [ERASED].",
+    "Exact native document-to-PDF conversion is limited by browser libraries; extracted text PDFs are generated where supported.",
+    "Unresolved findings remain marked as unresolved in exports.",
+    VALIDATION_CLAIM,
+    ...state.exportMeta.limitations,
+    ...state.documents.flatMap((doc) => doc.limitations || [])
+  ];
+}
+
+function encryptionRecord() {
+  return {
+    passwordRequired: state.exportMeta.passwordRequired,
+    passwordAccepted: state.exportMeta.passwordAccepted,
+    passwordProtected: state.exportMeta.passwordProtected,
+    exportBlocked: state.exportMeta.exportBlocked,
+    blockedReason: state.exportMeta.blockedReason,
+    archiveName: state.exportMeta.archiveName,
+    encryptionStatus: state.exportMeta.encryptionStatus,
+    validationClaim: state.exportMeta.validationClaim,
+    limitations: state.exportMeta.limitations
+  };
+}
+
+async function exportOutput() {
+  try {
+    if (!state.findings.length && !state.documents.length) {
+      updateStatus("Process files before exporting");
+      updateAlert("Export cannot run yet. Process files first, then review findings.", "warning");
+      return;
+    }
+
+    const validation = prepareArchiveMetadata();
+    renderEncryptionStatus();
+    if (validation.blocked) {
+      updateStatus(validation.message);
+      updateAlert(validation.message, "error");
+      return;
+    }
+    if (!confirmExportRemediation()) {
+      updateAlert("Export cancelled before package creation.", "warning");
+      return;
+    }
+
+    const files = await buildOutputFiles();
+    const zipBlob = await createZip(files, els.passwordInput.value);
+    const zipName = `${OUTPUT_DIR}.zip`;
+
+    if (state.outputHandle) {
+      const dir = await state.outputHandle.getDirectoryHandle(OUTPUT_DIR, { create: true });
+      await writeFile(dir, zipName, zipBlob);
+      for (const file of files) await writeFile(dir, file.name, file.blob);
+      updateStatus(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`));
+      updateAlert(exportStatusMessage(`Export written to selected ${OUTPUT_DIR} directory`), "success");
+    } else {
+      downloadBlob(zipBlob, zipName);
+      updateStatus(exportStatusMessage("Export zip downloaded through browser downloads"));
+      updateAlert(exportStatusMessage("Export zip downloaded through browser downloads"), "success");
+    }
+    renderEncryptionStatus();
+  } catch (error) {
+    showActionError(error);
+  }
+}
+
+function prepareArchiveMetadata() {
+  const sensitive = hasSensitiveExport();
+  const password = els.passwordInput.value;
+  const confirmation = els.passwordConfirmInput.value;
+  const passwordResult = validatePassword(password, confirmation);
+  state.exportMeta = {
+    ...defaultExportMeta(),
+    passwordRequired: sensitive,
+    passwordAccepted: passwordResult.valid,
+    passwordProtected: false,
+    encryptionStatus: sensitive ? ENCRYPTION_STATUS.blocked : ENCRYPTION_STATUS.notRequired
+  };
+
+  if (sensitive && !passwordResult.valid) {
+    state.exportMeta.exportBlocked = true;
+    state.exportMeta.blockedReason = passwordResult.reason;
+    state.exportMeta.limitations.push(passwordResult.reason);
+    return { blocked: true, message: passwordResult.reason };
+  }
+
+  if (sensitive && !window.zip) {
+    const reason = "Sensitive export blocked because zip.js password protection is unavailable in this browser session.";
+    state.exportMeta.exportBlocked = true;
+    state.exportMeta.blockedReason = reason;
+    state.exportMeta.limitations.push(reason);
+    return { blocked: true, message: reason };
+  }
+
+  if (!window.zip) {
+    state.exportMeta.encryptionStatus = ENCRYPTION_STATUS.limited;
+    state.exportMeta.limitations.push("zip.js unavailable; non-sensitive export will download a JSON fallback blob.");
+    return { blocked: false, message: "Export allowed with zip.js limitation because no sensitive output was detected." };
+  }
+
+  state.exportMeta.passwordProtected = sensitive;
+  state.exportMeta.encryptionStatus = sensitive ? ENCRYPTION_STATUS.protected : ENCRYPTION_STATUS.notRequired;
+  return { blocked: false, message: "Export allowed." };
+}
+
+function validatePassword(password, confirmation) {
+  if (!password) return { valid: false, reason: "Sensitive export requires an encryption password." };
+  if (password.length < 12) return { valid: false, reason: "Encryption password must be at least 12 characters." };
+  const classes = [
+    /[A-Z]/.test(password),
+    /[a-z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password)
+  ].filter(Boolean).length;
+  if (classes < 3) return { valid: false, reason: "Encryption password must include at least three of uppercase letters, lowercase letters, numbers, and symbols." };
+  if (password !== confirmation) return { valid: false, reason: "Encryption password confirmation does not match." };
+  return { valid: true, reason: "" };
+}
+
+function hasSensitiveExport() {
+  return state.findings.some(isSensitiveFinding);
+}
+
+function isSensitiveFinding(finding) {
+  if (!finding || finding.type === "PROCESSING_LIMITATION") return false;
+  return normalizeAction(finding.action) !== DISPOSITIONS.falsePositive;
+}
+
+function confirmExportRemediation() {
+  const destructiveCount = state.findings.filter((finding) => [DISPOSITIONS.redact, DISPOSITIONS.erase].includes(normalizeAction(finding.action))).length;
+  if (!destructiveCount) return true;
+  return window.confirm(`Confirm export with ${destructiveCount} redact/erase decision(s). Exported document renditions will apply these decisions and the manifest will record them.`);
+}
+
+async function buildOutputFiles() {
+  const output = [
+    textFile("pii-findings.json", JSON.stringify(reportJson(), null, 2), "application/json"),
+    textFile("pii-findings.csv", reportCsv(), "text/csv"),
+    textFile("pii-findings.html", reportHtml(), "text/html"),
+    textFile("manifest.json", JSON.stringify(manifest(), null, 2), "application/json")
+  ];
+
+  for (const doc of state.documents) {
+    const findings = state.findings.filter((finding) => finding.file === doc.path);
+    const safeName = safeFileName(doc.path);
+    const redacted = redactText(doc.text, findings);
+    output.push(textFile(`redacted-text/${safeName}.txt`, redacted, "text/plain"));
+    const pdfBlob = createPdfBlob(redacted, doc.path);
+    if (pdfBlob) output.push({ name: `redacted-pdf/${safeName}.pdf`, blob: pdfBlob });
+  }
+
+  return output;
+}
+
+function textFile(name, content, type) {
+  return { name, blob: new Blob([content], { type }) };
+}
+
+function createPdfBlob(text, title) {
+  if (!window.jspdf?.jsPDF) return null;
+  const pdf = new window.jspdf.jsPDF({ unit: "pt", format: "letter" });
+  const margin = 40;
+  const width = pdf.internal.pageSize.getWidth() - margin * 2;
+  pdf.setFont("helvetica", "bold");
+  pdf.text(`Redacted text rendition: ${title}`, margin, margin);
+  pdf.setFont("helvetica", "normal");
+  const lines = pdf.splitTextToSize(text || "[No extracted text]", width);
+  let y = margin + 28;
+  for (const line of lines) {
+    if (y > 750) {
+      pdf.addPage();
+      y = margin;
+    }
+    pdf.text(line, margin, y);
+    y += 14;
+  }
+  return pdf.output("blob");
+}
+
+async function createZip(files, password) {
+  if (!window.zip) {
+    return new Blob([JSON.stringify({ error: "zip.js unavailable", files: files.map((file) => file.name) }, null, 2)], { type: "application/json" });
+  }
+  const sensitive = hasSensitiveExport();
+  const writerOptions = sensitive ? { password, encryptionStrength: 3 } : {};
+  const writer = new window.zip.ZipWriter(new window.zip.BlobWriter("application/zip"), writerOptions);
+  for (const file of files) {
+    await writer.add(file.name, new window.zip.BlobReader(file.blob));
+  }
+  const blob = await writer.close();
+  state.exportMeta.passwordProtected = sensitive;
+  state.exportMeta.encryptionStatus = sensitive ? ENCRYPTION_STATUS.protected : ENCRYPTION_STATUS.notRequired;
+  return blob;
+}
+
+function exportStatusMessage(prefix) {
+  const status = state.exportMeta.encryptionStatus.replace("_", " ");
+  return `${prefix}. Encryption status: ${status}. Password protected: ${state.exportMeta.passwordProtected ? "yes" : "no"}.`;
+}
+
+function renderEncryptionStatus() {
+  const meta = state.exportMeta || defaultExportMeta();
+  const sensitive = hasSensitiveExport();
+  const status = sensitive && meta.encryptionStatus === ENCRYPTION_STATUS.notRequired && !meta.passwordProtected
+    ? ENCRYPTION_STATUS.blocked
+    : meta.encryptionStatus || (sensitive ? ENCRYPTION_STATUS.blocked : ENCRYPTION_STATUS.notRequired);
+  els.encryptionStatus.className = `status-pill ${statusClass(status)}`;
+  els.encryptionStatus.textContent = `Encryption status: ${status.replace("_", " ")}${sensitive ? " (sensitive output)" : " (not required)"}`;
+}
+
+function statusClass(status) {
+  if (status === ENCRYPTION_STATUS.protected) return "protected";
+  if (status === ENCRYPTION_STATUS.blocked) return "blocked";
+  if (status === ENCRYPTION_STATUS.notRequired) return "not-required";
+  return "limited";
+}
+
+function renderValidationSummary() {
+  const validation = state.detectorValidation || runDetectorValidation();
+  els.validationSummary.textContent = `Detector validation: FP ${formatRate(validation.falsePositivePassRate)}, TP ${formatRate(validation.truePositivePassRate)}`;
+}
+
+function runDetectorValidation() {
+  const controls = validationControls.map((control) => {
+    const findings = detectInDocument({ path: control.id, text: control.sampleText }, detectors);
+    const highConfidencePii = findings.some((finding) => normalizeAction(finding.action) !== DISPOSITIONS.falsePositive && finding.confidence >= 0.7 && severityRank[finding.severity] >= severityRank.medium);
+    const detectedPii = findings.some((finding) => normalizeAction(finding.action) !== DISPOSITIONS.falsePositive);
+    const passed = control.expected === "detected" ? detectedPii : !highConfidencePii;
+    return {
+      controlId: control.id,
+      controlCategory: control.category,
+      expectedOutcome: control.expected,
+      actualOutcome: findings.length ? findings.map((finding) => `${finding.type}:${finding.severity}:${finding.confidence}`).join("; ") : "no finding",
+      confidence: findings[0]?.confidence || 0,
+      severity: findings[0]?.severity || "none",
+      explanation: findings[0]?.confidenceReason || "No finding generated.",
+      passed
+    };
+  });
+  const fpControls = controls.filter((control) => control.controlId.startsWith("FP-"));
+  const tpControls = controls.filter((control) => control.controlId.startsWith("TP-"));
+  return {
+    feature: FEATURE_ID,
+    generatedAt: new Date().toISOString(),
+    falsePositivePassRate: passRate(fpControls),
+    truePositivePassRate: passRate(tpControls),
+    controls
+  };
+}
+
+function passRate(controls) {
+  if (!controls.length) return 0;
+  return controls.filter((control) => control.passed).length / controls.length;
+}
+
+async function writeFile(dirHandle, name, blob) {
+  const parts = name.split("/");
+  let dir = dirHandle;
+  while (parts.length > 1) {
+    dir = await dir.getDirectoryHandle(parts.shift(), { create: true });
+  }
+  const fileHandle = await dir.getFileHandle(parts[0], { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(blob);
+  await writable.close();
+}
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function safeFileName(name) {
+  return name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120);
+}
+
+function supportsOutputDirectoryPicker() {
+  return typeof window.showDirectoryPicker === "function";
+}
+
+function updateExportDestinationAvailability() {
+  if (!supportsOutputDirectoryPicker()) {
+    els.chooseOutputBtn.classList.add("hidden");
+    els.chooseOutputBtn.disabled = true;
+    els.exportDestinationHelp.textContent = "Output folder selection is not available in this browser. Export reviewed output will download the encrypted zip through the browser downloads folder.";
+    return;
+  }
+  els.chooseOutputBtn.classList.remove("hidden");
+  els.chooseOutputBtn.disabled = false;
+  els.exportDestinationHelp.textContent = `Optional: choose an output folder before export. Otherwise, the encrypted zip downloads through the browser downloads folder.`;
+}
+
+async function chooseOutputDirectory() {
+  try {
+    if (!supportsOutputDirectoryPicker()) {
+      const message = "This browser does not support choosing an output folder from this page. Use Export reviewed output; the zip will download through the browser downloads folder.";
+      updateStatus("Directory picker is not supported; export will download a zip instead.");
+      updateAlert(message, "warning");
+      return;
+    }
+    state.outputHandle = await window.showDirectoryPicker({ mode: "readwrite" });
+    updateStatus(`Output directory selected; ${OUTPUT_DIR} will be created there`);
+    updateAlert(`Output directory selected. Export will create ${OUTPUT_DIR} there.`, "success");
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      const message = "Output directory selection was cancelled. Export will download a zip through the browser downloads folder.";
+      updateStatus("Output directory selection was cancelled; export will download a zip instead.");
+      updateAlert(message, "warning");
+      return;
+    }
+    showActionError(error);
+  }
+}
+
+function clearState() {
+  state.files = [];
+  state.documents = [];
+  state.findings = [];
+  state.exportMeta = defaultExportMeta();
+  els.progress.value = 0;
+  els.passwordInput.value = "";
+  els.passwordConfirmInput.value = "";
+  updateStatus("No files queued");
+  updateAlert("Ready. Select files or drop them here to begin.", "info");
+  renderAll();
+}
+
+els.fileInput.addEventListener("change", (event) => queueFiles(event.target.files));
+els.dirInput.addEventListener("change", (event) => queueFiles(event.target.files));
+els.processBtn.addEventListener("click", () => processQueue().catch(showActionError));
+els.workflowBtn.addEventListener("click", () => els.workflowDialog.showModal());
+els.customRegexBtn.addEventListener("click", () => {
+  renderCustomRegexList();
+  updateCustomRegexStatus();
+  els.customRegexDialog.showModal();
+});
+els.addCustomRegexBtn.addEventListener("click", () => addCustomRegexTest().catch(showActionError));
+els.cancelCustomRegexEditBtn.addEventListener("click", () => {
+  resetCustomRegexForm();
+  renderCustomRegexList();
+  updateCustomRegexStatus();
+});
+els.clearBtn.addEventListener("click", clearState);
+els.severityFilter.addEventListener("change", renderFindings);
+els.exportBtn.addEventListener("click", exportOutput);
+els.chooseOutputBtn.addEventListener("click", chooseOutputDirectory);
+els.passwordInput.addEventListener("input", () => {
+  state.exportMeta = defaultExportMeta();
+  renderEncryptionStatus();
+});
+els.passwordConfirmInput.addEventListener("input", () => {
+  state.exportMeta = defaultExportMeta();
+  renderEncryptionStatus();
+});
+
+["dragenter", "dragover"].forEach((name) => {
+  els.dropZone.addEventListener(name, (event) => {
+    event.preventDefault();
+    els.dropZone.classList.add("is-dragging");
+  });
+});
+
+["dragleave", "drop"].forEach((name) => {
+  els.dropZone.addEventListener(name, () => els.dropZone.classList.remove("is-dragging"));
+});
+
+els.dropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  queueFiles(event.dataTransfer.files);
+});
+
+setTimeout(() => {
+  if (!els.workflowDialog.open) els.workflowDialog.showModal();
+}, 300);
+
+</script>
+  </body>
+</html>
+

@@ -7,6 +7,9 @@ with IM 05-09 and IM 10-03.
 ## Runtime Model
 
 - Open `index.html` directly in a browser for static use.
+- For direct GitHub download in controlled office environments, use the
+  self-contained release file at
+  `release/pbgc-pii-detection-v0.4.0.html`.
 - No server calls, telemetry, uploads, or remote storage are used by app code.
 - Compliance basis is read from local `im-05-09.pdf` and `im-10-03.pdf` in the
   repository root.

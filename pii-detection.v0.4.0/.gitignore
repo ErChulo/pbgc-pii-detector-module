@@ -2,3 +2,7 @@ node_modules/
 dist/
 *.log
 pii-output-v0.4.0/
+
+# Office-ready single-file release artifacts are intentionally tracked.
+!release/
+!release/*.html

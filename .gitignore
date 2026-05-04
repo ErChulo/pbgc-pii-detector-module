@@ -10,3 +10,7 @@ Thumbs.db
 .vscode/
 .idea/
 pii-output-v0.4.0/
+
+# Office-ready single-file release artifacts are intentionally tracked.
+!pii-detection.v0.4.0/release/
+!pii-detection.v0.4.0/release/*.html
