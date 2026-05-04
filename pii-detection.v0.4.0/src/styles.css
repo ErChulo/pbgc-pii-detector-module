@@ -333,14 +333,16 @@ input:focus-visible,
 }
 
 .input-actions .file-button {
-  background: var(--field);
-  color: var(--ink);
-  border-color: var(--line);
+  background: #f0fdfa;
+  color: #134e4a;
+  border-color: #14b8a6;
+  font-weight: 800;
 }
 
 .input-actions .file-button:hover {
-  background: var(--panel);
+  background: #ccfbf1;
   border-color: var(--accent);
+  color: #042f2e;
 }
 
 .setup-actions {
@@ -362,6 +364,18 @@ input:focus-visible,
 :root[data-theme="dark"] .process-actions {
   border-color: #047857;
   background: #052e1f;
+}
+
+:root[data-theme="dark"] .input-actions .file-button {
+  background: #ccfbf1;
+  color: #042f2e;
+  border-color: #5eead4;
+}
+
+:root[data-theme="dark"] .input-actions .file-button:hover {
+  background: #99f6e4;
+  color: #042f2e;
+  border-color: #ccfbf1;
 }
 
 .progress-row {
