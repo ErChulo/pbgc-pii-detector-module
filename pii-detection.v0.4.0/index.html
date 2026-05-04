@@ -30,18 +30,24 @@
             <strong>Drop files here</strong>
             <span>PDF, DOCX, XLSX, CSV, TXT, HTML, MD, JSON, XML, SQLite DB</span>
           </div>
-          <div class="controls">
-            <label class="file-button">
-              Select files
-              <input id="fileInput" type="file" multiple />
-            </label>
-            <label class="file-button">
-              Select directory
-              <input id="dirInput" type="file" webkitdirectory directory multiple />
-            </label>
-            <button id="workflowBtn" type="button">Workflow</button>
-            <button id="customRegexBtn" type="button">Custom regex</button>
-            <button id="processBtn" type="button">Process queue</button>
+          <div class="controls" aria-label="Intake actions">
+            <div class="control-group input-actions" aria-label="Input selection">
+              <label class="file-button">
+                Select files
+                <input id="fileInput" type="file" multiple />
+              </label>
+              <label class="file-button">
+                Select directory
+                <input id="dirInput" type="file" webkitdirectory directory multiple />
+              </label>
+            </div>
+            <div class="control-group setup-actions" aria-label="Workflow setup">
+              <button id="workflowBtn" class="setup-button" type="button">Workflow</button>
+              <button id="customRegexBtn" class="setup-button" type="button">Custom regex</button>
+            </div>
+            <div class="control-group process-actions" aria-label="Process files">
+              <button id="processBtn" class="process-button" type="button">Process queue</button>
+            </div>
           </div>
           <div class="progress-row">
             <progress id="progress" value="0" max="100"></progress>

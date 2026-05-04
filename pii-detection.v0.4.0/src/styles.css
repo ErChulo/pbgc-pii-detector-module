@@ -111,6 +111,58 @@ button.secondary {
   border-color: var(--line);
 }
 
+button.secondary:hover {
+  background: var(--panel-raised);
+  border-color: var(--accent);
+}
+
+button.setup-button {
+  background: #eef2ff;
+  color: #3730a3;
+  border-color: #818cf8;
+}
+
+button.setup-button:hover {
+  background: #e0e7ff;
+  border-color: #4f46e5;
+  color: #312e81;
+}
+
+button.process-button {
+  min-width: 148px;
+  background: #047857;
+  border-color: #047857;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+button.process-button:hover {
+  background: #065f46;
+  border-color: #065f46;
+}
+
+:root[data-theme="dark"] button.setup-button {
+  background: #312e81;
+  color: #e0e7ff;
+  border-color: #818cf8;
+}
+
+:root[data-theme="dark"] button.setup-button:hover {
+  background: #3730a3;
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] button.process-button {
+  background: #34d399;
+  border-color: #34d399;
+  color: #052e1f;
+}
+
+:root[data-theme="dark"] button.process-button:hover {
+  background: #6ee7b7;
+  border-color: #6ee7b7;
+}
+
 button.danger {
   background: var(--field);
   color: var(--danger);
@@ -265,6 +317,51 @@ input:focus-visible,
 
 .controls {
   margin-top: 14px;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel-raised);
+}
+
+.input-actions .file-button {
+  background: var(--field);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.input-actions .file-button:hover {
+  background: var(--panel);
+  border-color: var(--accent);
+}
+
+.setup-actions {
+  border-color: #c7d2fe;
+  background: #f8fafc;
+}
+
+.process-actions {
+  margin-left: auto;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+:root[data-theme="dark"] .setup-actions {
+  border-color: #4338ca;
+  background: #1e1b4b;
+}
+
+:root[data-theme="dark"] .process-actions {
+  border-color: #047857;
+  background: #052e1f;
 }
 
 .progress-row {
@@ -688,6 +785,15 @@ dialog::backdrop {
   .findings-panel {
     margin-top: 18px;
   }
+
+  .controls,
+  .control-group {
+    width: 100%;
+  }
+
+  .process-actions {
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 520px) {
@@ -697,7 +803,9 @@ dialog::backdrop {
 
   button,
   .file-button,
-  .controls label {
+  .controls label,
+  .control-group,
+  .process-button {
     width: 100%;
   }
 
